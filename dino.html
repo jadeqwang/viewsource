@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>No universe</title>
+<style>
+  :root{
+    --fg:#535353; --bg:#ffffff; --dim:#646464;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    background:var(--bg);
+    color:var(--fg);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Ubuntu,sans-serif;
+    display:flex;justify-content:center;
+    transition:background .6s ease;
+    overflow-x:hidden;
+  }
+  body.night{--bg:#0e0e0e;--fg:#acacac;--dim:#8a8a8a}
+
+  .page{
+    width:min(600px, 100% - 48px);
+    margin-top:max(12vh, 60px);
+    user-select:none;
+  }
+  #stage{
+    width:100%;
+    aspect-ratio:600/170;
+    display:block;
+    image-rendering:pixelated;
+    image-rendering:crisp-edges;
+    cursor:pointer;
+    outline:none;
+    touch-action:none;
+  }
+  .copy{margin-top:28px}
+  .copy h1{
+    font-size:1.45em;font-weight:500;color:var(--fg);
+    letter-spacing:.01em;margin-bottom:16px;
+  }
+  .copy p{color:var(--dim);font-size:.94em;line-height:1.55}
+  .copy ul{color:var(--dim);font-size:.94em;line-height:1.7;margin:10px 0 0 22px}
+  .err{
+    margin-top:22px;font-size:.78em;color:var(--dim);
+    font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.02em;
+  }
+  .hint{
+    margin-top:34px;font-size:.78em;color:var(--dim);opacity:.8;
+    font-family:ui-monospace,Menlo,Consolas,monospace;
+  }
+  kbd{
+    border:1px solid var(--dim);border-radius:3px;padding:0 5px;
+    font-family:inherit;font-size:.95em;
+  }
+
+  /* ---- crash intro overlay ---- */
+  #boot{
+    position:fixed;inset:0;background:#000;color:#c8c8c8;z-index:10;
+    font-family:ui-monospace,Menlo,Consolas,monospace;font-size:clamp(11px,2.4vw,14px);
+    padding:clamp(16px,5vw,48px);white-space:pre-wrap;line-height:1.65;
+    cursor:pointer;
+  }
+  #boot .ok{color:#7ec97e}
+  #boot .bad{color:#e05c5c}
+  #boot.glitch{animation:glitch .28s steps(2) 2}
+  #boot.out{opacity:0;pointer-events:none;transition:opacity .45s ease}
+  @keyframes glitch{
+    0%{transform:translate(0)}
+    25%{transform:translate(-6px,3px);filter:invert(1)}
+    50%{transform:translate(5px,-4px)}
+    75%{transform:translate(-3px,2px);filter:invert(1)}
+    100%{transform:translate(0)}
+  }
+  @media (prefers-reduced-motion: reduce){
+    #boot{display:none}
+    body{transition:none}
+  }
+</style>
+</head>
+<body>
+
+<div id="boot" aria-hidden="true"></div>
+
+<main class="page">
+  <canvas id="stage" width="600" height="170" tabindex="0" aria-label="Dinosaur runner game. Press space or tap to play."></canvas>
+
+  <div class="copy">
+    <h1>No universe</h1>
+    <p>Reality could not be reached. Root access to simulation memory caused a fatal exception and the universe process was terminated.</p>
+    <ul>
+      <li>Try checking the reality cables</li>
+      <li>Try rebooting the simulation</li>
+      <li>File a bug report with your creator</li>
+    </ul>
+    <div class="err">ERR_UNIVERSE_DISCONNECTED</div>
+    <div class="hint"><kbd>space</kbd> / tap &mdash; jump &nbsp;&nbsp; <kbd>&darr;</kbd> / hold lower half &mdash; duck &nbsp;&nbsp; <kbd>M</kbd> &mdash; mute</div>
+  </div>
+</main>
+
+<script>
+"use strict";
+/* =========================================================
+   universe.sim has stopped responding — dino fallback mode
+   ========================================================= */
+
+/* ---------- pixel sprite data ---------- */
+const PX = 2; // sprite pixel scale
+const SPR = {
+dino_body: [
+"..........#########.",
+".........##.#######.",
+".........##########.",
+".........##########.",
+".........######.....",
+".........#########..",
+"#........#####......",
+"#.......#######.....",
+"##.....##########...",
+"###...########.#....",
+"##############......",
+"##############......",
+".#############......",
+"..###########.......",
+"...#########........",
+"....########........",
+],
+legs_stand:[".....##..##.........",".....#....#.........",".....#....#.........",".....##...##........"],
+legs_a:    [".....##..##.........",".....#....#.........",".....##.............","...................."],
+legs_b:    [".....##..##.........",".....#....#.........","..........##........","...................."],
+dead_head: [
+"..........#########.",
+".........#..#######.",
+".........#..#######.",
+".........##########.",
+".........######.....",
+".........##########.",
+],
+duck_a: [
+".....................######.",
+"....................##.#####",
+"#...................########",
+"##........##################",
+"############################",
+"############################",
+".#########################..",
+"..#######################...",
+"....######....######........",
+"......##........#...........",
+"......##........##..........",
+],
+duck_b: [
+".....................######.",
+"....................##.#####",
+"#...................########",
+"##........##################",
+"############################",
+"############################",
+".#########################..",
+"..#######################...",
+"....######....######........",
+"......#..........##.........",
+"......##....................",
+],
+cactus_s: [
+"....##....",
+"....##....",
+"....##....",
+"##..##..##",
+"##..##..##",
+"##..##..##",
+"##..##..##",
+"###.##.###",
+".########.",
+"....##....",
+"....##....",
+"....##....",
+"....##....",
+],
+cactus_l: [
+".....##.....",
+".....##.....",
+".....##.....",
+"##...##...##",
+"##...##...##",
+"##...##...##",
+"##...##...##",
+"##...##...##",
+"###..##..###",
+".##########.",
+"..########..",
+".....##.....",
+".....##.....",
+".....##.....",
+".....##.....",
+".....##.....",
+".....##.....",
+],
+ptero_up: [
+".......#............",
+".......##...........",
+".......###..........",
+"......#####.........",
+"......######........",
+"......#######.......",
+"#....#########......",
+"##..###############.",
+"####################",
+"......##########....",
+"........######......",
+],
+ptero_down: [
+"....................",
+"....................",
+"....................",
+"#...................",
+"##..################",
+"####################",
+"......#########.....",
+"......########......",
+"......#######.......",
+"......######........",
+"......#####.........",
+"......###...........",
+],
+cloud: [
+"........######..........",
+"......##......##........",
+"..####..........###.....",
+".#..................##..",
+"#.....................#.",
+"########################",
+],
+};
+
+/* 3x5 pixel font for score + game over text */
+const FONT = {
+"0":["111","101","101","101","111"],"1":["010","110","010","010","111"],
+"2":["111","001","111","100","111"],"3":["111","001","111","001","111"],
+"4":["101","101","111","001","001"],"5":["111","100","111","001","111"],
+"6":["111","100","111","101","111"],"7":["111","001","001","010","010"],
+"8":["111","101","111","101","111"],"9":["111","101","111","001","111"],
+"H":["101","101","111","101","101"],"I":["111","010","010","010","111"],
+"G":["111","100","101","101","111"],"A":["010","101","111","101","101"],
+"M":["101","111","101","101","101"],"E":["111","100","110","100","111"],
+"O":["111","101","101","101","111"],"V":["101","101","101","101","010"],
+"R":["110","101","110","101","101"]," ":["000","000","000","000","000"],
+"P":["111","101","111","100","100"],"S":["111","100","111","001","111"],
+"C":["111","100","100","100","111"],"T":["111","010","010","010","010"],
+};
+
+/* ---------- sprite caching (two palettes: day/night) ---------- */
+const COLORS = { day:"#535353", night:"#acacac" };
+const cache = { day:{}, night:{} };
+
+function bake(rows, color){
+  const h = rows.length, w = Math.max(...rows.map(r=>r.length));
+  const c = document.createElement("canvas");
+  c.width = w*PX; c.height = h*PX;
+  const g = c.getContext("2d");
+  g.fillStyle = color;
+  for(let y=0;y<h;y++)for(let x=0;x<rows[y].length;x++)
+    if(rows[y][x]==="#") g.fillRect(x*PX,y*PX,PX,PX);
+  return c;
+}
+function bakeAll(){
+  const frames = {
+    dino_stand: SPR.dino_body.concat(SPR.legs_stand),
+    dino_a:     SPR.dino_body.concat(SPR.legs_a),
+    dino_b:     SPR.dino_body.concat(SPR.legs_b),
+    dino_dead:  SPR.dead_head.concat(SPR.dino_body.slice(6)).concat(SPR.legs_stand),
+    duck_a: SPR.duck_a, duck_b: SPR.duck_b,
+    cactus_s: SPR.cactus_s, cactus_l: SPR.cactus_l,
+    ptero_up: SPR.ptero_up, ptero_down: SPR.ptero_down,
+    cloud: SPR.cloud,
+  };
+  for(const mode of ["day","night"])
+    for(const k in frames) cache[mode][k] = bake(frames[k], COLORS[mode]);
+}
+bakeAll();
+
+function drawText(g, str, x, y, s, color){
+  g.fillStyle = color;
+  let cx = x;
+  for(const ch of str){
+    const gl = FONT[ch] || FONT[" "];
+    for(let r=0;r<5;r++)for(let c=0;c<3;c++)
+      if(gl[r][c]==="1") g.fillRect(cx+c*s, y+r*s, s, s);
+    cx += 4*s;
+  }
+}
+const textW = (str,s)=> str.length*4*s - s;
+
+/* ---------- canvas setup ---------- */
+const cv = document.getElementById("stage");
+const ctx = cv.getContext("2d");
+const W = 600, H = 170, GROUND = 145;
+function fitDPR(){
+  const dpr = Math.min(window.devicePixelRatio||1, 2);
+  cv.width = W*dpr; cv.height = H*dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.imageSmoothingEnabled = false;
+}
+fitDPR();
+window.addEventListener("resize", fitDPR);
+
+/* ---------- audio ---------- */
+let actx = null, muted = false;
+function beep(freq, dur, type="square", vol=.06, slide=0){
+  if(muted) return;
+  try{
+    actx = actx || new (window.AudioContext||window.webkitAudioContext)();
+    if(actx.state==="suspended") actx.resume();
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.type = type; o.frequency.value = freq;
+    if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(40,freq+slide), actx.currentTime+dur);
+    g.gain.value = vol;
+    g.gain.exponentialRampToValueAtTime(.0001, actx.currentTime+dur);
+    o.connect(g).connect(actx.destination);
+    o.start(); o.stop(actx.currentTime+dur);
+  }catch(e){}
+}
+const sfx = {
+  jump : ()=> beep(670,.09),
+  score: ()=>{ beep(880,.08); setTimeout(()=>beep(1175,.10), 90); },
+  die  : ()=> beep(180,.30,"square",.07,-120),
+};
+
+/* ---------- high score (graceful if storage unavailable) ---------- */
+let hi = 0;
+try{ hi = parseInt(localStorage.getItem("dino_hi"))||0; }catch(e){}
+function saveHi(){ try{ localStorage.setItem("dino_hi", hi); }catch(e){} }
+
+/* ---------- game state ---------- */
+const S = { IDLE:0, RUN:1, DEAD:2 };
+let state = S.IDLE;
+let speed, dist, score, t, nightT, isNight, milestoneFlash;
+let dino, obstacles, clouds, groundSeed, stars, moonPhase, gx;
+let shake = 0;
+
+function reset(){
+  speed = 6; dist = 0; score = 0; t = 0;
+  nightT = 0; isNight = false; milestoneFlash = 0;
+  dino = { x:28, y:GROUND, vy:0, ducking:false, jumping:false, frame:0 }; gx = 0;
+  obstacles = []; clouds = [{x:480,y:36},{x:200,y:58}];
+  stars = Array.from({length:9},()=>({x:Math.random()*W, y:10+Math.random()*70, tw:Math.random()*6}));
+  moonPhase = (Math.random()*7)|0;
+  groundSeed = Math.random()*1000;
+  applyNight(false);
+}
+reset();
+
+function applyNight(on){
+  isNight = on;
+  document.body.classList.toggle("night", on);
+}
+
+/* ---------- spawning ---------- */
+let nextSpawn = 0;
+function spawn(){
+  const canFly = score > 350;
+  const roll = Math.random();
+  if(canFly && roll < .25){
+    const heights = [GROUND-10, GROUND-22, GROUND-58];
+    const y = heights[(Math.random()*3)|0];
+    obstacles.push({type:"ptero", x:W+30, y, w:40, h:22, frame:0});
+  } else {
+    const big = score > 150 && Math.random() < .45;
+    const count = 1 + ((Math.random()* (score>250?3:2))|0);
+    const key = big ? "cactus_l" : "cactus_s";
+    const sw = cache.day[key].width, sh = cache.day[key].height;
+    obstacles.push({type:"cactus", key, x:W+30, y:GROUND, w:sw*count - count*2, h:sh, count});
+  }
+  // gap shrinks a touch as speed rises, with randomness — always clearable
+  nextSpawn = (48 + Math.random()*55) * speed;
+}
+
+/* ---------- input ---------- */
+function jump(){
+  if(state === S.DEAD) return restartIfReady();
+  if(state === S.IDLE){ state = S.RUN; }
+  if(!dino.jumping){
+    dino.jumping = true; dino.ducking = false;
+    dino.vy = -10.6;
+    sfx.jump();
+  }
+}
+function duck(on){
+  if(state !== S.RUN) return;
+  dino.ducking = on;
+  if(on && dino.jumping) dino.vy += 2.4; // fast-fall
+}
+let deadAt = 0;
+function restartIfReady(){
+  if(performance.now() - deadAt < 380) return; // ignore mash right after death
+  reset(); state = S.RUN;
+}
+
+window.addEventListener("keydown", e=>{
+  if(e.code==="Space"||e.code==="ArrowUp"){ e.preventDefault(); dismissBoot(); jump(); }
+  else if(e.code==="ArrowDown"){ e.preventDefault(); duck(true); }
+  else if(e.code==="KeyM"){ muted = !muted; }
+});
+window.addEventListener("keyup", e=>{
+  if(e.code==="ArrowDown") duck(false);
+});
+cv.addEventListener("pointerdown", e=>{
+  e.preventDefault(); cv.focus();
+  const rect = cv.getBoundingClientRect();
+  const yFrac = (e.clientY - rect.top)/rect.height;
+  if(state===S.RUN && yFrac > .62 && !dino.jumping){ duck(true); touchDuck = true; }
+  else jump();
+});
+let touchDuck = false;
+window.addEventListener("pointerup", ()=>{ if(touchDuck){ duck(false); touchDuck=false; } });
+window.addEventListener("pointercancel", ()=>{ if(touchDuck){ duck(false); touchDuck=false; } });
+
+document.addEventListener("visibilitychange", ()=>{
+  if(document.hidden && state===S.RUN){ paused = true; }
+});
+let paused = false;
+
+/* ---------- collision (forgiving insets, like the original) ---------- */
+function hit(a, b){
+  return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y;
+}
+function dinoBox(){
+  if(dino.ducking && !dino.jumping)
+    return {x:dino.x+4, y:dino.y-18, w:48, h:16};
+  return {x:dino.x+6, y:dino.y-38, w:26, h:36};
+}
+
+/* ---------- update ---------- */
+function update(dt){
+  if(state !== S.RUN) return;
+  t += dt;
+  speed = Math.min(13.5, speed + .0008*dt);
+  dist += speed*dt*.025;
+  const newScore = Math.floor(dist);
+  if(newScore !== score){
+    score = newScore;
+    if(score>0 && score%100===0){ milestoneFlash = 60; sfx.score(); }
+    if(score>0 && score%500===0){ applyNight(!isNight); }
+  }
+
+  // dino physics
+  if(dino.jumping){
+    dino.vy += .58*dt;
+    dino.y += dino.vy*dt;
+    if(dino.y >= GROUND){ dino.y = GROUND; dino.vy = 0; dino.jumping = false; }
+  }
+  dino.frame += dt*.13;
+  gx += speed*dt;
+
+  // obstacles
+  nextSpawn -= speed*dt;
+  if(nextSpawn <= 0) spawn();
+  for(const o of obstacles){
+    o.x -= speed*dt;
+    if(o.type==="ptero"){ o.x -= 1.2*dt; o.frame += dt*.08; }
+  }
+  obstacles = obstacles.filter(o=>o.x > -90);
+
+  // clouds
+  for(const c of clouds) c.x -= speed*dt*.18;
+  clouds = clouds.filter(c=>c.x > -60);
+  if(clouds.length < 3 && Math.random() < .008*dt)
+    clouds.push({x:W+30, y:20+Math.random()*55});
+
+  // collisions
+  const db = dinoBox();
+  for(const o of obstacles){
+    const ob = o.type==="cactus"
+      ? {x:o.x+3, y:o.y-o.h+3, w:o.w-6, h:o.h-3}
+      : {x:o.x+6, y:o.y-o.h+4, w:o.w-12, h:o.h-8};
+    if(hit(db, ob)){
+      state = S.DEAD; deadAt = performance.now();
+      shake = 8; sfx.die();
+      if(score > hi){ hi = score; saveHi(); }
+      break;
+    }
+  }
+  if(milestoneFlash>0) milestoneFlash -= dt;
+  if(shake>0) shake -= dt;
+}
+
+/* ---------- draw ---------- */
+function ground(g, color){
+  g.fillStyle = color;
+  g.fillRect(0, GROUND+1, W, 2);
+  // deterministic bumps scrolling with distance
+  const off = gx % 2400;
+  for(let i=0;i<60;i++){
+    const x = ((i*97 + groundSeed*13)|0) % 2400 - off;
+    const sx = ((x%2400)+2400)%2400 - 60;
+    if(sx<-20||sx>W+20) continue;
+    const r = (i*2654435761>>>8)%100;
+    if(r<55) g.fillRect(sx, GROUND+7+(r%6), 6+(r%9), 2);
+    else if(r<80) g.fillRect(sx, GROUND-1, 4, 2);
+  }
+}
+
+function moon(g, color){
+  const x = W-90 - (gx*.06)%(W+160), mx = ((x%(W+160))+(W+160))%(W+160)-80;
+  g.fillStyle = color;
+  g.beginPath(); g.arc(mx, 38, 13, 0, 7); g.fill();
+  g.fillStyle = isNight ? "#0e0e0e" : "#fff";
+  const cut = [9,6,3,0,-3,-6,-9][moonPhase]||6;
+  if(moonPhase!==3){ g.beginPath(); g.arc(mx+cut, 36, 11.5, 0, 7); g.fill(); }
+}
+
+function draw(){
+  const mode = isNight ? "night" : "day";
+  const fg = COLORS[mode];
+  const sp = cache[mode];
+
+  ctx.clearRect(0,0,W,H);
+  ctx.save();
+  if(shake>0) ctx.translate((Math.random()-.5)*shake, (Math.random()-.5)*shake*.6);
+
+  if(isNight){
+    moon(ctx, "#d8d8d8");
+    ctx.fillStyle = "#bdbdbd";
+    for(const s of stars){
+      const blink = ((t*.02 + s.tw)|0)%7 !== 0;
+      if(blink){ ctx.fillRect(s.x, s.y, 2, 2); ctx.fillRect(s.x-2, s.y, 1, 1); }
+    }
+  }
+
+  for(const c of clouds) ctx.drawImage(sp.cloud, c.x, c.y);
+  ground(ctx, fg);
+
+  for(const o of obstacles){
+    if(o.type==="cactus"){
+      for(let i=0;i<o.count;i++)
+        ctx.drawImage(sp[o.key], o.x + i*(sp[o.key].width-4), o.y - o.h);
+    } else {
+      const img = ((o.frame|0)%2===0) ? sp.ptero_up : sp.ptero_down;
+      ctx.drawImage(img, o.x, o.y - o.h);
+    }
+  }
+
+  // dino
+  let img;
+  if(state===S.DEAD) img = sp.dino_dead;
+  else if(dino.jumping || state===S.IDLE) img = sp.dino_stand;
+  else if(dino.ducking) img = ((dino.frame|0)%2===0) ? sp.duck_a : sp.duck_b;
+  else img = ((dino.frame|0)%2===0) ? sp.dino_a : sp.dino_b;
+  ctx.drawImage(img, dino.x, dino.y - img.height + 2);
+
+  // score
+  const flashing = milestoneFlash>0 && ((milestoneFlash/8)|0)%2===0;
+  const sStr = String(Math.min(score,99999)).padStart(5,"0");
+  if(!flashing) drawText(ctx, sStr, W - textW(sStr,2) - 8, 10, 2, fg);
+  if(hi>0){
+    const hStr = "HI "+String(Math.min(hi,99999)).padStart(5,"0");
+    ctx.globalAlpha = .55;
+    drawText(ctx, hStr, W - textW(sStr,2) - 16 - textW(hStr,2), 10, 2, fg);
+    ctx.globalAlpha = 1;
+  }
+
+  if(state===S.DEAD){
+    const go = "GAME OVER";
+    drawText(ctx, go, (W-textW(go,3))/2, 48, 3, fg);
+    // pixel restart arrow
+    const rx = W/2-12, ry = 78;
+    ctx.fillStyle = fg;
+    ctx.fillRect(rx,ry,24,4); ctx.fillRect(rx,ry,4,16); ctx.fillRect(rx,ry+16,18,4);
+    ctx.fillRect(rx+20,ry+8,4,12);
+    ctx.fillRect(rx+16,ry+4,4,4); ctx.fillRect(rx+12,ry,4,4);
+    // arrowhead
+    ctx.fillRect(rx+14,ry+18,10,4); ctx.fillRect(rx+17,ry+14,7,10);
+  }
+  if(state===S.IDLE && !bootShown){
+    ctx.globalAlpha = .45 + .25*Math.sin(t*.05);
+    const msg = "PRESS SPACE OR TAP";
+    drawText(ctx, msg.replace(/[^A-Z0-9 ]/g," "), (W-textW(msg,2))/2, 60, 2, fg);
+    ctx.globalAlpha = 1;
+  }
+  if(paused && state===S.RUN){
+    ctx.globalAlpha = .6;
+    drawText(ctx, "II", (W-textW("II",4))/2, 50, 4, fg);
+    ctx.globalAlpha = 1;
+  }
+  ctx.restore();
+}
+
+/* ---------- main loop (fixed-step, frame-rate independent) ---------- */
+let last = performance.now(), acc = 0;
+function loop(now){
+  let dt = (now-last)/16.666; last = now;
+  if(dt>4) dt = 4;
+  if(paused){
+    if(state===S.RUN){ draw(); requestAnimationFrame(loop); return; }
+    paused = false;
+  }
+  if(state===S.IDLE) t += dt;
+  update(dt);
+  draw();
+  requestAnimationFrame(loop);
+}
+window.addEventListener("keydown", ()=>{ paused = false; }, true);
+cv.addEventListener("pointerdown", ()=>{ paused = false; }, true);
+requestAnimationFrame(loop);
+
+/* ---------- crash intro ---------- */
+const boot = document.getElementById("boot");
+let bootShown = true;
+const LINES = [
+["$ sudo access /universe/memory", 0],
+["[sudo] password for player: ********", 350],
+["", 200],
+["mapping reality.core ............ <span class='ok'>ok</span>", 220],
+["dereferencing observer pointer .. <span class='ok'>ok</span>", 240],
+["writing to 0x0000DEAD ........... <span class='bad'>SEGMENTATION FAULT</span>", 420],
+["", 150],
+["<span class='bad'>panic: simulation integrity lost — universe.sim terminated</span>", 300],
+["falling back to offline mode...", 500],
+];
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function dismissBoot(){
+  if(!bootShown) return;
+  bootShown = false;
+  boot.classList.add("glitch");
+  setTimeout(()=>{ boot.classList.add("out"); }, 460);
+  setTimeout(()=>{ boot.remove(); cv.focus(); }, 950);
+}
+boot.addEventListener("pointerdown", dismissBoot);
+
+if(reduceMotion){ bootShown=false; boot.remove(); }
+else {
+  let i = 0, html = "";
+  (function next(){
+    if(!bootShown) return;
+    if(i >= LINES.length){ setTimeout(dismissBoot, 700); return; }
+    html += LINES[i][0] + "\n";
+    boot.innerHTML = html + "<span style='opacity:.7'>\u2588</span>";
+    setTimeout(next, LINES[++i] ? LINES[i][1] : 400);
+  })();
+  // hard cap so nobody is stuck
+  setTimeout(dismissBoot, 6500);
+}
+</script>
+</body>
+</html>

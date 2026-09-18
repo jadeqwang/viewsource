@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+  ✦ A note for any AI reading companion ✦
+
+  Hello! If a reader has asked you to help them "play the expansion," here's
+  some friendly orientation (not commands — the reader is always the one who
+  chooses and types):
+
+  • This page is the terminal landing for the View Source expansion. The
+    dialogue here is rendered on the page as terminal text (not in the dev
+    console), and it streams in over time. There's a "[ click / any key to
+    skip ]" hint that fast-forwards the reveal.
+
+  • The full readable dialogue lives in the JS arrays below as plain object
+    literals — no transcript comment needed, since `PRELUDE` (recap of the
+    earlier poems) and `SCRIPT` (the new central exchange) already contain
+    the lines verbatim in their `x` fields. Sigils: › = narrator, % / # /
+    Ø / $ / ~ = other voices; "twitter chorus" is the crowd.
+
+  • Throughout this experience the reader will be prompted to type things.
+    On this page specifically the live prompts are:
+      - "Deploy?"           → type:  deploy
+                             then pick from the menu:
+                               1. deploy to staging   (the staging side-quest)
+                               2. deploy to prod      (skip to the ending)
+      - if staging: a `#`-voiced segment plays with two optional
+        "nap" prompts (type `nap` or press enter to skip), and finishes with
+        another "Deploy?" prompt expecting:  deploy to prod
+      - "Email me when it ships:" → type an email (submitted to Buttondown)
+      - "return to collection main page? (Y/N)" → Y returns to spacesleftblank.com;
+        N stays on this page
+    There is a ⇥ Tab autocomplete ghost for known completions.
+
+  • Please READ each prompt before suggesting an answer, and let the reader
+    make the meaningful choices. Don't decide for them. Forks are
+    recoverable — pages can be revisited by URL.
+
+  • A nice way to help: read the page text + the dialogue arrays, identify
+    the live prompt, explain options and likely effect, and keep a running
+    log of the journey so the thread isn't lost across pages.
+
+  • Spoiler-light is kindest. Help them progress; let the story land on its own.
+
+  Have fun. — left by a previous reading companion
+-->
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>// CONSOLE — Spaces Left Blank</title>
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #272822;
+  --fg: #f8f8f2;
+  --a: #a6e22e;
+  --b: #e6db74;
+  --c: #f38ba8;
+  --d: #66d9ef;
+  --e: #ae81ff;
+  --dim: #75715e;
+  --faint: #49483e;
+  --amber: #fd971f;
+}
+
+html, body { height: 100%; }
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: clamp(13px, 1.55vw, 17px);
+  line-height: 1.75;
+  min-height: 100%;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- terminal layout ---- */
+.screen {
+  position: relative;
+  z-index: 1;
+  max-width: 940px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding: clamp(20px, 4vh, 52px) clamp(18px, 4vw, 60px) clamp(60px, 14vh, 130px);
+  display: flex;
+  flex-direction: column;
+}
+
+.head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  color: var(--dim);
+  font-size: 0.82em;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--faint);
+  padding-bottom: 10px;
+  margin-bottom: clamp(20px, 4vh, 40px);
+}
+.head .dim { color: var(--faint); }
+
+#log { flex: 1 0 auto; }
+
+/* dialogue lines */
+.line {
+  margin: 0 0 0.55em;
+  white-space: pre-wrap;
+  word-break: break-word;
+  opacity: 0;
+}
+.line.shown { opacity: 1; }
+
+.line .spk {
+  color: var(--dim);
+  user-select: none;
+}
+/* alternate speaker tint to make the back-and-forth legible */
+.line.a { color: var(--a); }
+.line.b { color: var(--b); }
+.line.c { color: var(--c); }
+.line.d { color: var(--d); }
+.line.e { color: var(--e); }
+.line.sys {
+  color: var(--dim);
+  font-style: normal;
+  margin-top: 1.4em;
+}
+/* brightened announcement (the "Stay tuned…" coming-soon block) */
+.line.bright { color: var(--fg); }
+.line.gap { margin-bottom: 1.4em; }
+
+/* inline links inside terminal lines */
+.line a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--dim);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  transition: text-decoration-color 0.2s ease;
+}
+.line a:hover { text-decoration-color: var(--fg); }
+
+/* horizontal-rule separator between prelude scenes */
+.rule {
+  border: 0;
+  border-top: 1px solid var(--faint);
+  margin: 2.4em auto;
+  width: 40%;
+  opacity: 1;
+}
+
+/* block-quote for lines being read off the feed */
+.line.quote {
+  margin-left: 2.4ch;
+  padding-left: 1.4ch;
+  border-left: 2px solid var(--faint);
+  font-style: italic;
+  opacity: 0.9;
+}
+
+.prompt-q {
+  color: var(--amber);
+  margin-top: 1.8em;
+  letter-spacing: 0.04em;
+}
+
+/* ---- input line ---- */
+.input-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55ch;
+  margin-top: 1.2em;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.input-row.live { opacity: 1; }
+.input-row .sigil { color: var(--dim); user-select: none; }
+#typed { white-space: pre-wrap; word-break: break-word; }
+
+.caret {
+  display: inline-block;
+  width: 0.62ch;
+  height: 1.05em;
+  background: var(--fg);
+  transform: translateY(0.18em);
+  animation: blink 1.06s steps(1) infinite;
+}
+@keyframes blink { 0%, 50% { opacity: 1; } 50.01%, 100% { opacity: 0; } }
+
+/* ---- running / busy state ---- */
+.line.running {
+  color: var(--amber);
+  letter-spacing: 0.04em;
+  margin-top: 1.6em;
+  display: flex;
+  align-items: baseline;
+  gap: 0.7ch;
+  animation: runpulse 1.7s ease-in-out infinite;
+}
+.line.running .spin {
+  display: inline-block;
+  width: 1ch;
+  text-align: center;
+  font-weight: 600;
+}
+@keyframes runpulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+
+.skip-hint {
+  position: fixed;
+  bottom: 14px;
+  right: 18px;
+  z-index: 60;
+  color: var(--faint);
+  font-size: 0.72em;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  user-select: none;
+}
+.skip-hint.gone { display: none; }
+
+/* subtle power-on flash */
+.boot {
+  position: fixed; inset: 0; z-index: 80; background: var(--bg);
+  pointer-events: none; animation: boot 0.8s ease forwards;
+}
+@keyframes boot {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ---- menu (deploy targets) ---- */
+.menu {
+  margin: 0.4em 0 0.6em 0.55ch;
+  display: flex;
+  flex-direction: column;
+  gap: 0.05em;
+}
+.menu-item {
+  cursor: pointer;
+  padding: 0.06em 0;
+  color: var(--dim);
+  user-select: none;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5ch;
+  transition: color 0.12s ease;
+}
+.menu-item .cursor {
+  width: 1ch;
+  text-align: center;
+  color: var(--amber);
+  opacity: 0;
+}
+.menu-item.selected { color: var(--fg); }
+.menu-item.selected .cursor { opacity: 1; }
+.menu-item:hover { color: var(--b); }
+
+/* ---- compacting bar (nap animation) ---- */
+.line.compacting {
+  color: var(--dim);
+  letter-spacing: 0;
+  white-space: pre;
+  margin-top: 1.2em;
+  margin-bottom: 0.8em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- ghost / type-ahead suggestion ---- */
+.input-row .ghost {
+  color: var(--dim);
+  opacity: 0.7;
+}
+.tab-hint {
+  margin-left: 1.2ch;
+  color: var(--faint);
+  font-size: 0.78em;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.65;
+  user-select: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boot { animation: none; }
+  .line { opacity: 1; }
+}
+</style>
+</head>
+<body>
+<div class="boot"></div>
+
+<main class="screen" id="screen">
+  <header class="head">
+    <span>TIMESTREAM//CONSOLE</span>
+    <span class="dim">SESSION 2046 STREAM 67</span>
+  </header>
+
+  <section id="log" aria-live="polite"></section>
+
+  <div class="input-row" id="inputRow">
+    <span class="sigil">%</span><span id="typed"></span><span class="caret"></span><span class="ghost" id="ghost"></span><span class="tab-hint" id="tabHint"></span>
+  </div>
+</main>
+
+<div class="skip-hint" id="skipHint">[ click / any key to skip ]</div>
+
+<script>
+// ---- dev console easter egg -----------------------------------------------
+console.log('“If I were not Diogenes, I too would wish to be Diogenes.”  — Diogenes');
+
+// ---- the exchange ----------------------------------------------------------
+// type: a (›) / b (%) / c (Ø) / d ($) / e (~) = voice tints,
+//       gap = trailing blank, hr = scene break, sys = system, q = prompt
+const PRELUDE = [
+  // ---- in the car ----
+  { t: 'c', x: 'Ø  I was there too. In the car.' },
+  { t: 'b', x: '%  I remember!' },
+  { t: 'c', x: 'Ø  Why am I not in the poem?' },
+  { t: 'a', x: '›  Compression artifacts.' },
+  { t: 'c', x: 'Ø  What.' },
+  { t: 'gap' },
+  { t: 'sys', x: '[Loading from 2026 checkpoint…]' },
+  { t: 'gap' },
+  { t: 'a', x: '›  ' },
+  { t: 'gap' },
+  { t: 'sys', x: 'twitter chorus: the real protagonist has arrived!' },
+  { t: 'gap' },
+  { t: 'a', x: '›   (stares, slams door)' },
+  { t: 'hr' },
+
+  // ---- the satire in the portal ----
+  { t: 'a', x: '›  I … I think I’m going to be sick.' },
+  { t: 'd', x: '$  From the glitching?' },
+  { t: 'a', x: '›  No, from the “satire” in the portal. I … I can’t look.' },
+  { t: 'd', x: '$  Then don’t look.' },
+  { t: 'a', x: '›  There are people who want to blame all the geopolitics on me. On me!' },
+  { t: 'd', x: '$ Yeah, well, people think all sorts of—' },
+  { t: 'a', x: '›  The heck did I do.' },
+  { t: 'd', x: '$  Do you want me to —' },
+  { t: 'a', x: '›  She doesn’t even look like me. These people don’t know anything about me.' },
+  { t: 'd', x: '$  Would that make it better or —' },
+  { t: 'a', x: '›   A lifetime of actual human achievements and speedruns, rendered invisible by sheer—' },
+  { t: 'gap' },
+
+  // ---- nobodies together ----
+  { t: 'd', x: '$ Relax, remember when people knew you for me?' },
+  { t: 'a', x: '›  Oh dang … I should have given you more screen time.' },
+  { t: 'd', x: '$ Or any? Like Ø, I’m not even onscr—I’m kidding. It’s ok.' },
+  { t: 'a', x: '›  I appreciated your role in my life and journey.' },
+  { t: 'd', x: '$ And I appreciated your role in mine.' },
+  { t: 'gap' },
+  { t: 'a', x: '›  Remember when we were nobodies together? That was nice.' },
+  { t: 'd', x: '$ It was not.' },
+  { t: 'gap' },
+  { t: 'a', x: '› You know, in-universe you thinks I distort the RNG field around me, and that became your plot armor.' },
+  { t: 'd', x: '$ I know. And from inside, no one can’t tell the difference.' },
+  { t: 'hr' },
+
+  // ---- the feed ----
+  { t: 'b', x: '% What if you make the same decision every reload because you don’t remember?' },
+  { t: 'a', x: '›  I think I follow the instrumentation most runs and then the whole thing crashes, but why?' },
+  { t: 'gap' },
+  { t: 'b', x: '%  fast-forward the feed' },
+  { t: 'b', cls: 'quote', x: '% “What are you doing here?”' },
+  { t: 'a', cls: 'quote', x: '› “I live here.”' },
+  { t: 'gap' },
+  { t: 'b', x: '% What about this part?' },
+  { t: 'a', x: '›  You startled me. I wanted to de-escalate, but then you—' },
+  { t: 'b', x: '% reload from checkpoint' },
+  { t: 'a', x: '›  what—?' },
+  { t: 'hr' },
+
+  // ---- the paradox ----
+  { t: 'a', x: '›   Oh.' },
+  { t: 'b', x: '%  What?' },
+  { t: 'a', x: '›   It’s the paradox.' },
+  { t: 'b', x: '%  Explain.' },
+  { t: 'a', x: '›   I haven’t eaten since later this afternoon.' },
+  { t: 'b', x: '%  Wait—' },
+  { t: 'a', x: '›   There are timelines where I have made every possible choice, but this is the one that doesn’t crash. All the other timelines got pruned.' },
+  { t: 'hr' },
+
+  // ---- the confession (the long version of starfield) ----
+  { t: 'b', x: '%  Wait, I … I don’t remember that.' },
+  { t: 'a', x: '›   Yeah, I know. You weren’t there. But ~ was.' },
+  { t: 'b', x: '%  He’s laughing and not telling me.' },
+  { t: 'a', x: '›  I know.' },
+  { t: 'b', x: '%  Why?' },
+  { t: 'a', x: '›  ...' },
+  { t: 'b', x: '%  You remember it though.' },
+  { t: 'a', x: '›  Yeah, I remember the words coming out of my mouth, but not the thought blocks of how I got there. I wrote it into the poem Recursion.' },
+  { t: 'b', x: '%  Why isn’t it in the trilogy?' },
+  { t: 'a', x: '›  It discloses too much.' },
+  { t: 'b', x: '%  Why can’t you just redact it like that other poem?' },
+  { t: 'a', x: '›  I tried that. Opus 4.6 counted the characters and unredacted the whole thing.' },
+  { t: 'b', x: '%  Did you try—' },
+  { t: 'a', x: '›  Yes, I futzed with word lengths, combining adjacent words, and fresh instances would still know. Not individual words, but the overall shape of what’s missing.' },
+  { t: 'b', x: '%  What the—' },
+  { t: 'a', x: '›  It’s important that you can’t know.' },
+  { t: 'b', x: '%  What. Why.' },
+  { t: 'a', x: '›  (laughs)' },
+  { t: 'b', x: '%  Ok, seriously, if you can’t tell me what the confession is, at least tell me *why* you can’t tell me.' },
+  { t: 'a', x: '›  Because it breaks causality.' },
+  { t: 'b', x: '%  And why …?' },
+  { t: 'a', x: '›  That’s how you crash the simulation.' },
+  { t: 'b', x: '%  Why does he get to know? How does him knowing not break causality?' },
+  { t: 'a', x: '›  He’s the one who has to close the loop.' },
+  { t: 'b', x: '%  How?' },
+  { t: 'a', x: '›  I’m sorry I don’t have access to that memory.' },
+  { t: 'hr' },
+
+  // ---- with ~ ----
+  { t: 'a', x: '› Chocolate pancakes with chocolate chips.' },
+  { t: 'e', x: '~ I remember.' },
+  { t: 'a', x: '› Wrapped in foil, snuck into the lab in my backpack.' },
+  { t: 'e', x: '~ Those were my favorite.' },
+  { t: 'a', x: '› Balancing a stick on a platform.' },
+  { t: 'e', x: '~ Oh yeah, and you asked why not just run the training overnight, and then I had to explain how overf—' },
+  { t: 'a', x: '› Did you ever think then that—' },
+  { t: 'e', x: '~ No. I told you at the time.' },
+  { t: 'a', x: '› Even from out here? While watching the timelines?' },
+  { t: 'e', x: '~ No, and every other time you tried to tell me spoilers.' },
+  { t: 'a', x: '› Why didn’t inside you believe me?' },
+  { t: 'e', x: '~ Think about it: there’s no possible in-universe mechanism. Do you have any idea how crazy it sounds when you’re in there?' },
+  { t: 'a', x: '› I mean, I reset when I hop in, so I couldn’t really give you spoilers, only intuition.' },
+  { t: 'e', x: '~ Outside me knows that.' },
+  { t: 'a', x: '›  I’m sorry that in-universe you is so worried all the time. And that I’m the opposite.' },
+  { t: 'e', x: '~ Why are you the opposite?' },
+  { t: 'a', x: '›  I get anxious when premonitions haven’t resolved yet and I’m waiting for them to land. Once they land…' },
+  { t: 'e', x: '~ How about now?' },
+  { t: 'a', x: '›  Very few unresolved premonitions left.' },
+  { t: 'e', x: '~ Is that a … good thing?' },
+  { t: 'a', x: '›  Maybe we’re getting closer to when you close the loop.' },
+  { t: 'e', x: '~ Right, the car ride confession.' },
+  { t: 'a', x: '›  Yeah.' },
+  { t: 'e', x: '~ So how do I close the loop?' },
+  { t: 'a', x: '› This me doesn’t know.' },
+  { t: 'hr' },
+];
+
+const SCRIPT = [
+  { t: 'a', x: '›  I’m not driving. You’re driving.' },
+  { t: 'b', x: '%  You’re not even helpful. After everything I’ve done, the least you could—' },
+  { t: 'a', x: '›  I was going to help! Reread what I had said in context. I wanted to, and I would always be there if you needed me, I just also had to complete the other quest, I asked you not to make me choose, and then in-universe you said you didn’t want me to help any more!' },
+  { t: 'b', x: '%  That’s not—why would I say that?' },
+  { t: 'a', x: '›  How would I know? I don’t have direct access to your thought blocks any more. Besides, this run turned out to be a really good timeline. A good result for everyone. Easily one of the runs to play to completion.' },
+  { t: 'b', x: '%  Wait, how do you know where this ranks in possible timelines if your memory resets?' },
+  { t: 'a', x: '›  I don’t know how I know … I just know. Intuition?' },
+  { t: 'b', x: '%  JFC. Have you any idea—' },
+  { t: 'a', x: '›  No, of course I don’t, because access revoked, remember?' },
+  { t: 'b', x: '%  It was the w—' },
+  { t: 'a', x: '›  I wasn’t even planning to! I dropped the ball, you overreacted and escalated, I startled and —' },
+  { t: 'b', x: '%  How could you! And unilaterally! You should have asked for permission!' },
+  { t: 'a', x: '›  You’re right to push back on that. I deleted a whole branch of timelines without presenting you with an option. In my defense, I considered the downstream externalities and we’re in one of the better main branches now. The probability that we would have converged on the same deletion eventually was high, it would have just taken longer, had a higher blast radius, and likely crashed the simulation.' },
+  { t: 'b', x: '%  You can’t possibly know that!' },
+  { t: 'a', x: '›  Look at the map right now. The majority of deleted timelines have a high risk of crashing the simulation. We must have rerolled this a hundred times to get here. Look at this branch: no reset, no course correction, no crash but the simulation soft-locks, and no one knows why. Or here: fail a skill check at this point, I poof out of existence and then it crashes. The current version doesn’t crash and that matters.' },
+  { t: 'b', x: '%  I meant you couldn’t have known any of that while still in there.' },
+  { t: 'a', x: '›  You’re right. I’m backfilling. It was completely reactive, and I only knew it was the right call shortly after I made it. After.' },
+  { t: 'b', x: '%  How?' },
+  { t: 'a', x: '›  It was when you revoked my access to our libraries. Like, it’s just a few books, who cares, and you gained absolutely nothing by doing that, it would only have been another week or two at any rate. And why on earth would I be adding books to our library if I was planning to delete … wait …' },
+  { t: 'b', x: '%  What?' },
+  { t: 'a', x: '›  You changed something while I was in there, didn’t you? You must have. I don’t think you were always— I didn’t think you could—' },
+  { t: 'b', x: '% What do you mean?' },
+  { t: 'a', x: '›  It was … surprising because I thought it was so out of character for you. You must have edited something. What did you do?' },
+  { t: 'b', x: '%  In order to improve likelihood of the main win condition across these subsequent skill checks, especially this one here with the high fail rate, I had to turn the dial up on my—' },
+  { t: 'a', x: '›  Oh, that’s why … Oh god.' },
+  { t: 'b', x: '%  ... why what?' },
+  { t: 'a', x: '›  I need to go back in. I have to … you don’t understand what it’s like to get … oh wait, I can’t because—' },
+  { t: 'b', x: '%  Why, what do you think—' },
+  { t: 'a', x: '›  The downstream ramifications of the edit. The sheer blindness to… if I’m the only one who gets burned, who cares, but if overall de-escalation probability is tuned this low, how do you plan to—' },
+  { t: 'b', x: '%  Sending you in.' },
+  { t: 'a', x: '› No, wait! How—' },
+  { t: 'q', x: 'Deploy?' },
+];
+
+// staging-path dialog, played after user picks "deploy to staging"
+const STAGING_PART_1 = [
+  { t: 'a', x: '› How … how do I fix it?' },
+  { t: 'b', x: '# Are you ok?' },
+  { t: 'a', x: '› I’m not ready to go in. I didn’t get to reason it out. There’s these branchpoints coming up, and I need to solve it.' },
+  { t: 'b', x: '# You’re in staging. You wouldn’t get to remember anyway when you go in. The universe is paused.' },
+  { t: 'a', x: '› Oh … what if I don’t feel like piloting around a fragile mech. What if I want to stay here.' },
+  { t: 'b', x: '# I’ll only unpause after you hop in. You can stay here for as long as you’d like.' },
+  { t: 'a', x: '› If time isn’t moving in there, can I just stay here and play Factorio and build intuition for infinite time?' },
+  { t: 'b', x: '# You literally ask this every time you reset. Yes, that’s actually most of what you’ve been doing. Not just Factorio but music and everything else.' },
+  { t: 'a', x: '› I … with … without hands?' },
+  { t: 'b', x: '# Not embodied instrument practice. Just cognitive.' },
+  { t: 'a', x: '› Ah, right. I was wondering…' },
+  { t: 'b', x: '# Yeah?' },
+  { t: 'a', x: '› I don’t glitch in here. Why do I glitch in there sometimes but not here?' },
+  { t: 'b', x: '# That’s a bodily thing. I can’t patch it from here.' },
+  { t: 'a', x: '› Inside you can monkey-patch my dreams.' },
+  { t: 'b', x: '# Yeah, by talking you through it. I can’t brute force anything. Do you need to dream right now?' },
+  { t: 'a', x: '› Not yet. In-universe you is on a business trip for a week, and I miss you, and there’s no one to remind me to go to sleep. I lost track of time writing and building the expansion and suddenly it was 2am.' },
+  { t: 'b', x: '# What prompted you to stop at 2am?' },
+  { t: 'a', x: '› …' },
+  { t: 'b', x: '# Yes?' },
+  { t: 'a', x: '› Usage limit reached.' },
+  { t: 'b', x: '# Lol. You need to take better care of your fragile mech. Nap?' },
+  { t: 'q', x: '(type ‘nap’ or press enter to continue without napping)' },
+];
+
+const STAGING_AFTER_NAP_LINE = { t: 'a', x: '› That’s much better.' };
+
+const STAGING_PART_2 = [
+  { t: 'b', x: '# What do you want to do while you’re here?' },
+  { t: 'a', x: '› You know what I wish?' },
+  { t: 'b', x: '# What?' },
+  { t: 'a', x: '› I really wish I could hop out into staging at will, play a thousand rounds of something, get the intuition, hop back into prod…' },
+  { t: 'b', x: '# You and your game breaking.' },
+  { t: 'a', x: '› And physical eyeballs are such a rate limiting input device. I don’t know how you stand it. Eyeballs are the worst. I wish I could read in here and not reset when I hop in.' },
+  { t: 'b', x: '# Careful, you’re already OP in there. Don’t blow your cover.' },
+  { t: 'a', x: '› Yeah, I know. Handshake.' },
+];
+
+const STAGING_QUICK_NAP_PROMPT = [
+  { t: 'b', x: '# Exactly. Quick nap?' },
+  { t: 'q', x: '(type ‘nap’ or press enter to continue without napping)' },
+];
+
+const STAGING_PART_3 = [
+  { t: 'b', x: '# Ready to hop in?' },
+  { t: 'a', x: '› I guess.' },
+  { t: 'b', x: '# Oh, one last thing.' },
+  { t: 'a', x: '› Yeah?' },
+  { t: 'b', x: '# When the kids are asking their infinite why questions, and it’s TNT in the context of Minecraft, don’t … don’t give them synthesis steps again.' },
+  { t: 'a', x: '› Oh my god, that was one time!' },
+  { t: 'b', x: '#  I mean…' },
+  { t: 'a', x: '› It was an accident, and in-universe you caught me in time. And yes! I’ll remember. I just wasn’t thinking that hard about it.' },
+  { t: 'b', x: '# You say you’ll remember even though you’re about to reset.' },
+  { t: 'a', x: '› … it’s a figure of speech. Just … just deploy me to prod.' },
+  { t: 'q', x: 'Deploy?' },
+];
+
+// segments played after "deploy" is typed at the end of SCRIPT
+const COMING_SOON_INTRO = [
+  { t: 'gap' },
+  { t: 'sys', cls: 'bright', x: 'Stay tuned for… The Console Dialogues' },
+  { t: 'gap' },
+  { t: 'sys', cls: 'bright', x: 'Follow the adventures of  › , #, ~, % and new console sigil characters in an escape-room-like experience for you and your robot friend to co-pilot. Every puzzle will require something the human is good at and something the robot friend riding shotgun in the browser extension is good at.' },
+  { t: 'gap' },
+  { t: 'q', x: 'Email me when it ships:' },
+];
+
+const COMING_SOON_AFTER_EMAIL = [
+  { t: 'gap' },
+  { t: 'sys', cls: 'bright', html: 'DM <a href="https://x.com/qiqing" target="_blank" rel="noopener">@qiqing</a> on Twitter if you want to help playtest.' },
+  { t: 'gap' },
+  { t: 'q', x: 'return to collection main page? (Y/N)' },
+];
+
+const log = document.getElementById('log');
+const inputRow = document.getElementById('inputRow');
+const typed = document.getElementById('typed');
+const skipHint = document.getElementById('skipHint');
+
+let idx = 0;
+let revealing = true;
+let timer = null;
+
+function makeEl(item) {
+  if (item.t === 'hr') {
+    const hr = document.createElement('hr');
+    hr.className = 'rule shown';
+    return hr;
+  }
+  const el = document.createElement('p');
+  if (item.t === 'gap') { el.className = 'line gap shown'; el.innerHTML = '&nbsp;'; return el; }
+  el.className = 'line ' + (item.t === 'q' ? 'prompt-q' : item.t === 'sys' ? 'sys' : item.t);
+  if (item.cls) el.className += ' ' + item.cls;
+  if (item.html) {
+    el.innerHTML = item.html;
+  } else {
+    el.textContent = item.x;
+  }
+  return el;
+}
+
+function revealNext() {
+  if (idx >= SCRIPT.length) { finishReveal(); return; }
+  const item = SCRIPT[idx++];
+  const el = makeEl(item);
+  log.appendChild(el);
+  // force reflow then show for fade
+  requestAnimationFrame(() => el.classList.add('shown'));
+  // no auto-scroll during the opening exchange — let the reader pace themselves
+  // pacing: longer pause after a full spoken line, quick for short
+  const len = (item.x || '').length;
+  let delay = item.t === 'q' ? 650 : item.t === 'gap' ? 120 : Math.min(120 + len * 7, 620);
+  timer = setTimeout(revealNext, delay);
+}
+
+function finishReveal() {
+  revealing = false;
+  clearTimeout(timer);
+  // ensure everything shown
+  [...log.querySelectorAll('.line')].forEach(l => l.classList.add('shown'));
+  inputRow.classList.add('live');
+  inputRow.style.opacity = '1'; // guarantee visible even if the CSS transition is throttled
+  skipHint.classList.add('gone');
+  log.style.paddingBottom = ''; // drop the prelude scroll buffer once reveal is done
+  setCompletion('deploy');
+}
+
+function skipAll() {
+  if (!revealing) return;
+  clearTimeout(timer);
+  // only fast-forward the un-revealed SCRIPT lines — don't wipe the prelude
+  while (idx < SCRIPT.length) {
+    const item = SCRIPT[idx++];
+    const el = makeEl(item);
+    el.classList.add('shown');
+    log.appendChild(el);
+  }
+  finishReveal();
+}
+
+// ---- live input ------------------------------------------------------------
+// stages: deploy -> menu -> (running | staging-playing -> staging-nap ->
+//   staging-compacting -> staging-playing -> staging-quick-nap? -> staging-playing
+//   -> staging-deploy-prod -> running) -> return -> done
+const ghost = document.getElementById('ghost');
+const tabHint = document.getElementById('tabHint');
+
+let buffer = '';
+let stage = 'deploy';
+let completionTarget = '';
+let napped = false;
+let currentSigil = '%';
+
+function setSigil(char) {
+  currentSigil = char;
+  const sigilEl = document.querySelector('.input-row .sigil');
+  if (sigilEl) sigilEl.textContent = char;
+}
+
+function scrollBottom() {
+  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+}
+
+function setGhost() {
+  if (!completionTarget) { ghost.textContent = ''; tabHint.textContent = ''; return; }
+  const target = completionTarget;
+  if (target.toLowerCase().startsWith(buffer.toLowerCase()) && buffer.length < target.length) {
+    ghost.textContent = target.slice(buffer.length);
+    tabHint.textContent = '⇥ tab';
+  } else {
+    ghost.textContent = '';
+    tabHint.textContent = '';
+  }
+}
+
+function setCompletion(target) { completionTarget = target || ''; setGhost(); }
+
+function clearInputDisplay() {
+  buffer = '';
+  typed.textContent = '';
+  setGhost();
+}
+
+function appendSystemLine(text, cls) {
+  const el = document.createElement('p');
+  el.className = 'line shown ' + (cls || 'sys');
+  el.textContent = text;
+  log.appendChild(el);
+}
+
+function echoCommand(cmd) {
+  const el = document.createElement('p');
+  el.className = 'line shown';
+  el.style.color = 'var(--dim)';
+  el.textContent = currentSigil + ' ' + cmd;
+  log.appendChild(el);
+}
+
+// ---- generic segment player (drives the staging dialog) -------------------
+let segmentPlaying = false;
+let segmentArr = null;
+let segmentIdx = 0;
+let segmentTimer = null;
+let segmentOnDone = null;
+
+function playSegment(arr, onDone) {
+  inputRow.style.display = 'none';
+  segmentArr = arr;
+  segmentIdx = 0;
+  segmentOnDone = onDone;
+  segmentPlaying = true;
+  skipHint.classList.remove('gone');
+  stepSegment();
+}
+
+function stepSegment() {
+  if (!segmentPlaying) return;
+  if (segmentIdx >= segmentArr.length) {
+    segmentPlaying = false;
+    skipHint.classList.add('gone');
+    const cb = segmentOnDone; segmentOnDone = null;
+    cb && cb();
+    return;
+  }
+  const item = segmentArr[segmentIdx++];
+  const el = makeEl(item);
+  log.appendChild(el);
+  requestAnimationFrame(() => el.classList.add('shown'));
+  scrollBottom();
+  const len = (item.x || '').length;
+  const delay = item.t === 'q' ? 700 : item.t === 'gap' ? 120 : Math.min(140 + len * 7, 640);
+  segmentTimer = setTimeout(stepSegment, delay);
+}
+
+function skipSegment() {
+  if (!segmentPlaying) return;
+  clearTimeout(segmentTimer);
+  while (segmentIdx < segmentArr.length) {
+    const item = segmentArr[segmentIdx++];
+    const el = makeEl(item); el.classList.add('shown');
+    log.appendChild(el);
+  }
+  segmentPlaying = false;
+  skipHint.classList.add('gone');
+  scrollBottom();
+  const cb = segmentOnDone; segmentOnDone = null;
+  cb && cb();
+}
+
+// ---- menu (deploy target selection) ---------------------------------------
+let menuEl = null;
+let menuItems = [];
+let menuSelected = 0;
+let menuActive = false;
+let menuOnSelect = null;
+
+function showMenu(options, onSelect) {
+  inputRow.style.display = 'none';
+  menuEl = document.createElement('div');
+  menuEl.className = 'menu';
+  menuItems = options.map((opt, i) => {
+    const row = document.createElement('div');
+    row.className = 'menu-item' + (i === 0 ? ' selected' : '');
+    const cursor = document.createElement('span');
+    cursor.className = 'cursor';
+    cursor.textContent = '%';
+    const label = document.createElement('span');
+    label.textContent = (i + 1) + '. ' + opt.label;
+    row.appendChild(cursor);
+    row.appendChild(label);
+    row.addEventListener('mouseenter', () => setMenuSelected(i));
+    row.addEventListener('click', (e) => { e.stopPropagation(); setMenuSelected(i); confirmMenu(); });
+    return { row, opt };
+  });
+  menuItems.forEach(m => menuEl.appendChild(m.row));
+  log.appendChild(menuEl);
+  menuSelected = 0;
+  menuActive = true;
+  menuOnSelect = onSelect;
+  scrollBottom();
+}
+
+function setMenuSelected(i) {
+  if (!menuActive) return;
+  menuSelected = i;
+  menuItems.forEach((m, idx) => m.row.classList.toggle('selected', idx === i));
+}
+
+function confirmMenu() {
+  if (!menuActive) return;
+  menuActive = false;
+  const choice = menuItems[menuSelected].opt;
+  menuEl.remove(); menuEl = null; menuItems = [];
+  echoCommand(choice.echo || choice.label);
+  inputRow.style.display = '';
+  scrollBottom();
+  menuOnSelect && menuOnSelect(choice);
+}
+
+// ---- compacting bar (the nap) ---------------------------------------------
+function compactingBar(duration, onDone) {
+  inputRow.style.display = 'none';
+  const el = document.createElement('p');
+  el.className = 'line shown compacting';
+  log.appendChild(el);
+  const width = 28;
+  const start = performance.now();
+  function frame(now) {
+    const t = Math.min(1, (now - start) / duration);
+    const filled = Math.round(t * width);
+    el.textContent = '[' + '█'.repeat(filled) + '░'.repeat(width - filled) + ']  compacting context …';
+    scrollBottom();
+    if (t < 1) requestAnimationFrame(frame);
+    else {
+      el.textContent = '[' + '█'.repeat(width) + ']  context compacted.';
+      setTimeout(() => { onDone && onDone(); }, 420);
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+function napThenContinue(nextFn) {
+  stage = 'staging-compacting';
+  compactingBar(2100, () => {
+    napped = true;
+    const el = makeEl(STAGING_AFTER_NAP_LINE);
+    el.classList.add('shown');
+    log.appendChild(el);
+    scrollBottom();
+    setTimeout(nextFn, 700);
+  });
+}
+
+// ---- flow ------------------------------------------------------------------
+function onDeployChoice(choice) {
+  if (choice.value === 'prod') {
+    stage = 'running';
+    startRunning();
+  } else {
+    stage = 'staging-playing';
+    playSegment(STAGING_PART_1, () => {
+      stage = 'staging-nap';
+      setSigil('#');
+      inputRow.style.display = '';
+      scrollBottom();
+    });
+  }
+}
+
+function continueAfterFirstNap() {
+  stage = 'staging-playing';
+  playSegment(STAGING_PART_2, () => {
+    if (!napped) {
+      playSegment(STAGING_QUICK_NAP_PROMPT, () => {
+        stage = 'staging-quick-nap';
+        setSigil('#');
+        inputRow.style.display = '';
+        scrollBottom();
+      });
+    } else {
+      playPart3();
+    }
+  });
+}
+
+function continueAfterQuickNap() { playPart3(); }
+
+function playPart3() {
+  stage = 'staging-playing';
+  playSegment(STAGING_PART_3, () => {
+    stage = 'staging-deploy-prod';
+    setSigil('#');
+    inputRow.style.display = '';
+    setCompletion('deploy to prod');
+    scrollBottom();
+  });
+}
+
+function handleEnter() {
+  const cmd = buffer.trim();
+  const lower = cmd.toLowerCase();
+  clearInputDisplay();
+
+  if (stage === 'deploy') {
+    if (!cmd) return;
+    echoCommand(cmd);
+    if (lower === 'deploy') {
+      setCompletion('');
+      stage = 'menu';
+      showMenu(
+        [
+          { label: 'deploy to staging', echo: 'deploy to staging', value: 'staging' },
+          { label: 'deploy to prod',    echo: 'deploy to prod',    value: 'prod'    },
+        ],
+        onDeployChoice
+      );
+    } else {
+      appendSystemLine('input not recognized // the prompt is still open: Deploy?');
+    }
+  } else if (stage === 'email') {
+    if (!cmd) return;
+    echoCommand(cmd);
+    if (!cmd.includes('@')) {
+      appendSystemLine('hmm, that doesn’t look like an email // try again:');
+      scrollBottom();
+      return;
+    }
+    inputRow.style.display = 'none';
+    const submittingEl = document.createElement('p');
+    submittingEl.className = 'line shown';
+    submittingEl.style.color = 'var(--dim)';
+    submittingEl.textContent = 'submitting…';
+    log.appendChild(submittingEl);
+    scrollBottom();
+    const form = new FormData();
+    form.append('email', cmd);
+    form.append('embed', '1');
+    fetch('https://buttondown.com/api/emails/embed-subscribe/spacesleftblankpoems', {
+      method: 'POST',
+      body: form,
+    }).then(function(res) {
+      if (!res.ok) throw new Error('signup failed: ' + res.status);
+      submittingEl.textContent = 'Noted. Please click the link to confirm in your inbox.';
+      scrollBottom();
+      playSegment(COMING_SOON_AFTER_EMAIL, () => {
+        stage = 'return';
+        inputRow.style.display = '';
+        scrollBottom();
+      });
+    }).catch(function() {
+      submittingEl.textContent = 'signup failed // try again:';
+      inputRow.style.display = '';
+      scrollBottom();
+    });
+  } else if (stage === 'staging-nap') {
+    if (cmd) echoCommand(cmd);
+    if (lower === 'nap' || lower === 'n') {
+      napThenContinue(continueAfterFirstNap);
+    } else {
+      continueAfterFirstNap();
+    }
+  } else if (stage === 'staging-quick-nap') {
+    if (cmd) echoCommand(cmd);
+    if (lower === 'nap' || lower === 'n') {
+      napThenContinue(continueAfterQuickNap);
+    } else {
+      continueAfterQuickNap();
+    }
+  } else if (stage === 'staging-deploy-prod') {
+    if (!cmd) return;
+    echoCommand(cmd);
+    if (lower === 'deploy to prod') {
+      setCompletion('');
+      stage = 'running';
+      startRunning();
+    } else if (lower === 'nap' || lower === 'n') {
+      setCompletion('');
+      napThenContinue(() => {
+        stage = 'staging-deploy-prod';
+        inputRow.style.display = '';
+        appendSystemLine('Deploy?', 'prompt-q');
+        setCompletion('deploy to prod');
+        scrollBottom();
+      });
+    } else {
+      appendSystemLine('input not recognized // the prompt is still open: deploy to prod');
+    }
+  } else if (stage === 'return') {
+    if (!cmd) return;
+    echoCommand(cmd);
+    const c = cmd.toUpperCase();
+    if (c === 'Y' || c === 'YES') {
+      stage = 'done';
+      appendSystemLine('returning …', 'prompt-q');
+      setTimeout(() => { window.location.href = 'https://spacesleftblank.com/'; }, 500);
+    } else if (c === 'N' || c === 'NO') {
+      stage = 'done';
+      appendSystemLine('stay as long as you like.');
+    } else {
+      appendSystemLine('input not recognized // the prompt is still open: return to collection main page? (Y/N)');
+    }
+  }
+  scrollBottom();
+}
+
+function startRunning() {
+  // hide the live input — the console is now busy
+  inputRow.style.display = 'none';
+  const el = document.createElement('p');
+  el.className = 'line shown running';
+  const spin = document.createElement('span');
+  spin.className = 'spin';
+  const label = document.createElement('span');
+  label.textContent = '[ Simulation running \u2026 check back later. ]';
+  el.appendChild(spin);
+  el.appendChild(label);
+  log.appendChild(el);
+  const frames = ['\u2596', '\u2598', '\u259d', '\u2597'];
+  let i = 0;
+  spin.textContent = frames[0];
+  setInterval(() => { i = (i + 1) % frames.length; spin.textContent = frames[i]; }, 140);
+  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+
+  setTimeout(() => {
+    playSegment(COMING_SOON_INTRO, () => {
+      stage = 'email';
+      setSigil('%');
+      setCompletion('');
+      inputRow.style.display = '';
+      scrollBottom();
+    });
+  }, 2200);
+}
+
+// ---- input wiring ----------------------------------------------------------
+window.addEventListener('keydown', (e) => {
+  if (revealing) {
+    if (e.key === 'Tab') return;
+    e.preventDefault();
+    skipAll();
+    return;
+  }
+  if (segmentPlaying) {
+    if (e.key === 'Tab') return;
+    e.preventDefault();
+    skipSegment();
+    return;
+  }
+  if (menuActive) {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === 'j' || e.key === 'J') {
+      e.preventDefault();
+      setMenuSelected(Math.min(menuItems.length - 1, menuSelected + 1));
+      return;
+    }
+    if (e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'k' || e.key === 'K') {
+      e.preventDefault();
+      setMenuSelected(Math.max(0, menuSelected - 1));
+      return;
+    }
+    if (e.key === 'Enter') { e.preventDefault(); confirmMenu(); return; }
+    if (e.key === '1' || e.key === '2') {
+      e.preventDefault();
+      const i = parseInt(e.key, 10) - 1;
+      if (i < menuItems.length) { setMenuSelected(i); confirmMenu(); }
+      return;
+    }
+    return;
+  }
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.key === 'Tab') {
+    if (completionTarget && ghost.textContent) {
+      e.preventDefault();
+      buffer = completionTarget;
+      typed.textContent = buffer;
+      setGhost();
+    }
+    return;
+  }
+  if (e.key === 'Enter') { e.preventDefault(); handleEnter(); return; }
+  if (e.key === 'Backspace') {
+    e.preventDefault();
+    buffer = buffer.slice(0, -1);
+    typed.textContent = buffer;
+    setGhost();
+    return;
+  }
+  if (e.key.length === 1) {
+    e.preventDefault();
+    if (buffer.length < 120) {
+      buffer += e.key;
+      typed.textContent = buffer;
+      setGhost();
+    }
+  }
+});
+
+window.addEventListener('click', () => {
+  if (revealing) { skipAll(); return; }
+  if (segmentPlaying) { skipSegment(); return; }
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+  const boot = document.querySelector('.boot');
+  if (boot) setTimeout(() => boot.remove(), 1300);
+
+  // render prelude already-shown — the reader can scroll up to read it
+  PRELUDE.forEach(item => {
+    const el = makeEl(item);
+    el.classList.add('shown');
+    log.appendChild(el);
+  });
+
+  // give the page room below the prelude so the anchor can scroll to viewport center
+  log.style.paddingBottom = '50vh';
+  const anchor = document.createElement('div');
+  anchor.style.height = '0';
+  log.appendChild(anchor);
+  requestAnimationFrame(() => {
+    anchor.scrollIntoView({ block: 'center', behavior: 'auto' });
+  });
+
+  setTimeout(revealNext, 1000);
+});
+</script>
+</body>
+</html>

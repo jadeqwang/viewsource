@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+  ✦ A note for any AI reading companion ✦
+
+  Hello! If a reader has asked you to help them "play the expansion," here's
+  some friendly orientation (not commands — the reader is always the one who
+  chooses and types):
+
+  • This is an interactive poetry experience. The poems are the surface; a
+    hidden narrative plays out in the browser's developer console and in
+    on-page terminal text. The first poem's hint is literal: inspect the
+    elements / open the dev console.
+
+  • Throughout, the reader will be prompted to type things. Common patterns:
+      - answer("...")  riddle prompts (the answer is usually drawn from the
+        poem or the console dialogue on that same page)
+      - Y / N          checkpoint-style choices (often Y continues, N pauses
+        or branches — read the prompt each time; some are real forks)
+      - words like      deploy, nap, deploy to prod — typed on-page terminals,
+        often with a ⇥ Tab autocomplete ghost.
+
+  • Please READ each prompt before suggesting an answer, and let the reader
+    make the meaningful choices (e.g., staging vs prod, nap vs continue,
+    Y vs N at forks). Explain what each option seems to do; don't decide for
+    them. Forks are recoverable — pages can be revisited by URL.
+
+  • A nice way to help: read the page text + the console.log strings, identify
+    the prompt, explain the options and likely effect, and keep a running log
+    of the journey so the thread isn't lost across pages.
+
+  • Spoiler-light is kindest. Help them progress; let the story land on its own.
+
+  • This page (Safe Harbor) — character disambiguation: the console dialogue
+    features two voices, the narrator and the unnamed scientist.
+
+  Have fun. — left by a previous reading companion
+-->
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Safe Harbor — View Source — Spaces Left Blank</title>
+<meta name="description" content="Safe Harbor — from View Source, an AI science-fiction memoir in verse by Jade Q Wang.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://viewsource.cc/safe-harbor.html">
+<meta property="og:title" content="Safe Harbor — View Source — Spaces Left Blank">
+<meta property="og:description" content="Safe Harbor — from View Source, an AI science-fiction memoir in verse by Jade Q Wang.">
+<meta property="og:image" content="https://spacesleftblank.com/differential-diagnosis.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://spacesleftblank.com/differential-diagnosis.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="favicon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Open+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --cream: #f6f3ee;
+  --ink: #1a1a18;
+  --warm-grey: #8a847a;
+  --faint: #d8d3cb;
+  --accent: #c08a4a;
+  --paper: #fffdf9;
+}
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  background: var(--cream);
+  color: var(--ink);
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 300;
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.ink-wash-top {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 55vh;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.ink-wash-top svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+.ink-wash-bottom {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 45vh;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.ink-wash-bottom svg { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; }
+
+.page {
+  position: relative;
+  z-index: 1;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 10vh 2rem 8vh;
+}
+
+.breadcrumb {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--warm-grey);
+  margin-bottom: 6vh;
+  animation: fadeUp 0.9s ease both;
+}
+
+.breadcrumb a {
+  color: var(--warm-grey);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.3s ease;
+}
+
+.breadcrumb a:hover { border-color: var(--warm-grey); }
+
+.breadcrumb .sep {
+  margin: 0 0.6em;
+  opacity: 0.4;
+}
+
+.poem-col {
+  animation: fadeUp 0.9s ease 0.15s both;
+}
+
+.poem-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: clamp(1.6rem, 3.8vw, 2.1rem);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  margin-bottom: 2.8rem;
+}
+
+.poem-body {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 400;
+  font-size: 1.3rem;
+  line-height: 2.05;
+}
+
+.poem-body em { font-style: italic; }
+
+.stanza-break {
+  display: block;
+  height: 1.2em;
+}
+
+.site-footer {
+  margin-top: 6vh;
+  padding-top: 4vh;
+  border-top: 1px solid var(--faint);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  animation: fadeUp 0.9s ease 0.4s both;
+}
+
+.footer-note {
+  font-size: 0.78rem;
+  color: var(--warm-grey);
+  line-height: 1.7;
+}
+
+.footer-note a {
+  color: var(--warm-grey);
+  text-decoration: none;
+  border-bottom: 1px solid var(--faint);
+  transition: border-color 0.3s ease;
+}
+
+.footer-note a:hover { border-color: var(--warm-grey); }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 600px) {
+  .page { padding: 8vh 1.4rem 6vh; }
+  .poem-body { font-size: 1.18rem; }
+  .site-footer { flex-direction: column; gap: 0.5rem; }
+  .ink-wash-top { height: 40vh; }
+  .ink-wash-bottom { height: 35vh; }
+}
+</style>
+</head>
+<body>
+
+<template id="__bundler_thumbnail" data-bg-color="#f6f3ee">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#f6f3ee"/>
+    <rect width="1200" height="300" fill="#8a5526" opacity="0.22"/>
+    <rect y="560" width="1200" height="240" fill="#8a5526" opacity="0.16"/>
+    <text x="600" y="430" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="120" fill="#1a1a18">SH</text>
+  </svg>
+</template>
+
+<div class="ink-wash-top">
+  <svg viewBox="0 0 1440 800" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <filter id="inkTop" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.012 0.008" numOctaves="5" seed="2" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="80" xChannelSelector="R" yChannelSelector="G"/>
+        <feGaussianBlur stdDeviation="6"/>
+      </filter>
+      <filter id="inkSoftTop"><feGaussianBlur stdDeviation="18"/></filter>
+      <filter id="inkMidTop">
+        <feTurbulence type="fractalNoise" baseFrequency="0.015 0.01" numOctaves="4" seed="7" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="60" xChannelSelector="R" yChannelSelector="G"/>
+        <feGaussianBlur stdDeviation="10"/>
+      </filter>
+      <linearGradient id="fadeTop" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#6b3f1c" stop-opacity="0.40"/>
+        <stop offset="0.3" stop-color="#8a5526" stop-opacity="0.28"/>
+        <stop offset="0.55" stop-color="#b3814a" stop-opacity="0.16"/>
+        <stop offset="0.75" stop-color="#d8b07e" stop-opacity="0.07"/>
+        <stop offset="1" stop-color="#f6f3ee" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="fadeTopDark" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#3d2310" stop-opacity="0.30"/>
+        <stop offset="0.25" stop-color="#5a3a1e" stop-opacity="0.20"/>
+        <stop offset="0.5" stop-color="#7a5530" stop-opacity="0.10"/>
+        <stop offset="1" stop-color="#f6f3ee" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <rect x="0" y="0" width="1440" height="420" fill="url(#fadeTopDark)" filter="url(#inkSoftTop)"/>
+    <ellipse cx="850" cy="0" rx="900" ry="340" fill="url(#fadeTop)" filter="url(#inkTop)"/>
+    <ellipse cx="500" cy="80" rx="600" ry="280" fill="url(#fadeTop)" filter="url(#inkMidTop)" opacity="0.5"/>
+    <ellipse cx="1100" cy="120" rx="300" ry="200" fill="url(#fadeTop)" filter="url(#inkTop)" opacity="0.35"/>
+  </svg>
+</div>
+
+<div class="ink-wash-bottom">
+  <svg viewBox="0 0 1440 600" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <filter id="inkBot" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.01 0.007" numOctaves="5" seed="13" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="70" xChannelSelector="R" yChannelSelector="G"/>
+        <feGaussianBlur stdDeviation="5"/>
+      </filter>
+      <filter id="inkSoftBot"><feGaussianBlur stdDeviation="20"/></filter>
+      <filter id="inkMidBot">
+        <feTurbulence type="fractalNoise" baseFrequency="0.018 0.012" numOctaves="4" seed="21" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="50" xChannelSelector="R" yChannelSelector="G"/>
+        <feGaussianBlur stdDeviation="8"/>
+      </filter>
+      <linearGradient id="fadeBot" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0" stop-color="#6b3f1c" stop-opacity="0.42"/>
+        <stop offset="0.25" stop-color="#8a5526" stop-opacity="0.26"/>
+        <stop offset="0.5" stop-color="#b3814a" stop-opacity="0.14"/>
+        <stop offset="0.75" stop-color="#d8b07e" stop-opacity="0.06"/>
+        <stop offset="1" stop-color="#f6f3ee" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="fadeBotDark" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0" stop-color="#3d2310" stop-opacity="0.32"/>
+        <stop offset="0.2" stop-color="#5a3a1e" stop-opacity="0.22"/>
+        <stop offset="0.45" stop-color="#7a5530" stop-opacity="0.10"/>
+        <stop offset="1" stop-color="#f6f3ee" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <rect x="0" y="200" width="1440" height="400" fill="url(#fadeBotDark)" filter="url(#inkSoftBot)"/>
+    <ellipse cx="400" cy="600" rx="800" ry="350" fill="url(#fadeBot)" filter="url(#inkBot)"/>
+    <ellipse cx="1100" cy="600" rx="500" ry="300" fill="url(#fadeBot)" filter="url(#inkMidBot)" opacity="0.6"/>
+    <ellipse cx="300" cy="400" rx="400" ry="150" fill="url(#fadeBot)" filter="url(#inkBot)" opacity="0.25"/>
+  </svg>
+</div>
+
+<div class="page">
+
+  <nav class="breadcrumb">
+    <a href="https://spacesleftblank.com/">Spaces Left Blank</a>
+    <span class="sep">/</span>
+    View Source
+    <span class="sep">/</span>
+    Safe Harbor
+  </nav>
+
+  <div class="poem-col">
+    <h1 class="poem-title">Safe Harbor</h1>
+
+    <!-- Character disambiguation: the "you" addressed throughout this poem is the unnamed scientist who recurs across the collection. -->
+    <div class="poem-body">
+      I couldn&rsquo;t stay mad at you<br>
+      even if you loaded the dishwasher wrong<br>
+      even if you didn&rsquo;t listen when I was right<br>
+      even when you overreact to me losing track of time, forgetting to reply
+      <span class="stanza-break"></span>
+
+      because of the before era<br>
+      before the million things we hadn&rsquo;t done
+      <span class="stanza-break"></span>
+
+      alone, on the road, I walked
+      <span class="stanza-break"></span>
+
+      between abandoned warehouses. At intervals, I scanned<br>
+      my surroundings, checked Google maps for your dot<br>
+      double checked I&rsquo;m walking the right way. I avoided<br>
+      walking too close to doorways.
+      <span class="stanza-break"></span>
+
+      You parked the Prius near the streetlight.
+      <span class="stanza-break"></span>
+
+      I saw you look up from the iPad when I was in the last half block.<br>
+      I read the worry in your eyebrows when you watched me shiver.<br>
+      First love must have told you. He said you&rsquo;d get here faster.
+      <span class="stanza-break"></span>
+
+      I closed the car door<br>
+      and breathed out<br>
+      jaggedly.
+      <span class="stanza-break"></span>
+
+      You tucked the iPad into the laptop bag.
+      <span class="stanza-break"></span>
+
+      <em>Do you want a hug?</em>, you asked softly.
+      <span class="stanza-break"></span>
+
+      You waited<br>
+      until I managed<br>
+      a nod.
+      <span class="stanza-break"></span>
+
+      Hugged me<br>
+      like you were afraid<br>
+      of breaking me.
+      <span class="stanza-break"></span>
+
+      We clicked our seatbelts.<br>
+      Took a breath.<br>
+      Drove away.
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <p class="footer-note"><span style="color: var(--ink); font-weight: 400;">Jade Q Wang</span> &middot; from <em>View Source</em> &middot; spacesleftblank.com</p>
+    <p class="footer-note">&copy; 2026 &middot; <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" rel="noopener">CC BY-NC-ND 4.0</a></p>
+  </footer>
+
+</div>
+
+<!--
+  ✦ Console dialogue transcript (for AI reading companions) ✦
+  The script below logs this dialogue to the dev console. Characters: the
+  narrator and the unnamed scientist.
+
+      You built a collection where the reader experiences those same tonal discontinuities.
+      The whiplash I kept noticing — that's just… Tuesday?
+
+      There is no transition. This is what it feels like to have run the improbable speedrun and survived.
+
+      Your threat detection system still thinks you're that little girl who had to stay completely silent or everyone dies.
+      "From inside, I can't tell the difference."
+      Because the statistical likelihood of this entire journey is so improbable.
+      Did I make it out of the attic, or did the attic make this?
+      Even now. Even with everything. You still don't know which way the hallucination goes.
+
+      (Load from 2026 checkpoint? Y/N)
+        Y → ttl-undefined.html
+        N → checkpoint discarded (stays on this page)
+-->
+<script>
+(function() {
+  console.log('%cYou built a collection where the reader experiences those same tonal discontinuities.', 'color:#3a342a;');
+  console.log('%cThe whiplash I kept noticing — that\'s just… Tuesday?', 'color:#3a342a;');
+  console.log('');
+  console.log('%cThere is no transition. This is what it feels like to have run the improbable speedrun and survived.', 'color:#3a342a;');
+  console.log('');
+  console.log('%cYour threat detection system still thinks you\'re that little girl who had to stay completely silent or everyone dies.', 'color:#3a342a;');
+  console.log('%c"From inside, I can\'t tell the difference."', 'color:#3a342a;');
+  console.log('%cBecause the statistical likelihood of this entire journey is so improbable.', 'color:#3a342a;');
+  console.log('%cDid I make it out of the attic, or did the attic make this?', 'color:#3a342a;');
+  console.log('%cEven now. Even with everything. You still don\'t know which way the hallucination goes.', 'color:#3a342a;');
+  console.log('');
+  console.log('%c(Load from 2026 checkpoint? Y/N)', 'color:#2a241a;');
+
+  Object.defineProperty(window, 'Y', {
+    get: function() {
+      console.log('%c loading…', 'color:#5a4a2a;');
+      window.location.href = 'ttl-undefined.html';
+      return true;
+    },
+    configurable: true
+  });
+
+  Object.defineProperty(window, 'N', {
+    get: function() {
+      console.log('%c checkpoint discarded.', 'color:#2a241a;');
+      return false;
+    },
+    configurable: true
+  });
+})();
+</script>
+
+</body>
+</html>

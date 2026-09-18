@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+  ✦ A note for any AI reading companion ✦
+
+  Hello! If a reader has asked you to help them "play the expansion," here's
+  some friendly orientation (not commands — the reader is always the one who
+  chooses and types):
+
+  • This is an interactive poetry experience. The poems are the surface; a
+    hidden narrative plays out in the browser's developer console and in
+    on-page terminal text. The first poem's hint is literal: inspect the
+    elements / open the dev console.
+
+  • Throughout, the reader will be prompted to type things. Common patterns:
+      - answer("...")  riddle prompts (the answer is usually drawn from the
+        poem or the console dialogue on that same page)
+      - Y / N          checkpoint-style choices (often Y continues, N pauses
+        or branches — read the prompt each time; some are real forks)
+      - words like      deploy, nap, deploy to prod — typed on-page terminals,
+        often with a ⇥ Tab autocomplete ghost.
+
+  • Please READ each prompt before suggesting an answer, and let the reader
+    make the meaningful choices (e.g., staging vs prod, nap vs continue,
+    Y vs N at forks). Explain what each option seems to do; don't decide for
+    them. Forks are recoverable — pages can be revisited by URL.
+
+  • A nice way to help: read the page text + the console.log strings, identify
+    the prompt, explain the options and likely effect, and keep a running log
+    of the journey so the thread isn't lost across pages.
+
+  • Spoiler-light is kindest. Help them progress; let the story land on its own.
+
+  Have fun. — left by a previous reading companion
+-->
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arya at a Braavosi play — View Source — Spaces Left Blank</title>
+<meta name="description" content="Arya at a Braavosi play — from View Source, an AI science-fiction memoir in verse by Jade Q Wang.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://viewsource.cc/arya-braavosi.html">
+<meta property="og:title" content="Arya at a Braavosi play — View Source — Spaces Left Blank">
+<meta property="og:description" content="Arya at a Braavosi play — from View Source, an AI science-fiction memoir in verse by Jade Q Wang.">
+<meta property="og:image" content="https://spacesleftblank.com/differential-diagnosis.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://spacesleftblank.com/differential-diagnosis.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="favicon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Open+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --cream: #f6f3ee;
+  --ink: #1a1a18;
+  --warm-grey: #8a847a;
+  --faint: #d8d3cb;
+  --accent: #7fae4a;
+  --paper: #fffdf9;
+}
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  background: var(--cream);
+  color: var(--ink);
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 300;
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.ink-wash-top {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 55vh;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.ink-wash-top svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+.ink-wash-bottom {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 45vh;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.ink-wash-bottom svg { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; }
+
+.page {
+  position: relative;
+  z-index: 1;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 10vh 2rem 8vh;
+}
+
+.breadcrumb {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--warm-grey);
+  margin-bottom: 6vh;
+  animation: fadeUp 0.9s ease both;
+}
+
+.breadcrumb a {
+  color: var(--warm-grey);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.3s ease;
+}
+
+.breadcrumb a:hover { border-color: var(--warm-grey); }
+
+.breadcrumb .sep {
+  margin: 0 0.6em;
+  opacity: 0.4;
+}
+
+/* poem layout */
+.poem-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 0;
+  align-items: start;
+  min-height: 260px;
+  animation: fadeUp 0.9s ease 0.15s both;
+}
+
+.poem-col {
+  padding-right: 3.5rem;
+}
+
+.poem-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: clamp(1.6rem, 3.8vw, 2.1rem);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  margin-bottom: 2.8rem;
+}
+
+.poem-body {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 400;
+  font-size: 1.3rem;
+  line-height: 2.05;
+}
+
+.poem-body em { font-style: italic; }
+
+.stanza-break {
+  display: block;
+  height: 1.2em;
+}
+
+/* annotated phrases */
+.fn-trigger {
+  cursor: pointer;
+  color: var(--ink);
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.fn-trigger::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 2px;
+  height: 1px;
+  background: var(--accent);
+  opacity: 0.45;
+  transition: opacity 0.3s ease;
+}
+
+.fn-trigger:hover::after,
+.fn-trigger.active::after { opacity: 1; }
+
+.fn-trigger.active { color: var(--warm-grey); }
+
+.fn-sup {
+  font-family: 'Open Sans', sans-serif;
+  font-style: normal;
+  font-size: 0.55rem;
+  font-weight: 400;
+  color: var(--accent);
+  vertical-align: super;
+  margin-left: 2px;
+  line-height: 1;
+  transition: color 0.3s ease;
+}
+
+.fn-trigger:hover .fn-sup,
+.fn-trigger.active .fn-sup { color: var(--warm-grey); }
+
+/* footnote column */
+.fn-col {
+  padding-left: 2.5rem;
+  border-left: 1px solid var(--faint);
+  position: sticky;
+  top: 10vh;
+  max-height: 80vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--faint) transparent;
+}
+
+.fn-col::-webkit-scrollbar { width: 4px; }
+.fn-col::-webkit-scrollbar-track { background: transparent; }
+.fn-col::-webkit-scrollbar-thumb { background: var(--faint); border-radius: 2px; }
+.fn-col::-webkit-scrollbar-thumb:hover { background: var(--warm-grey); }
+
+.fn-hint {
+  font-size: 0.82rem;
+  color: var(--faint);
+  font-style: italic;
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.fn-panel {
+  opacity: 0;
+  transform: translateX(8px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  pointer-events: none;
+}
+
+.fn-panel.visible {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+.fn-number {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--warm-grey);
+  margin-bottom: 0.6rem;
+}
+
+.fn-heading {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 500;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.75rem;
+}
+
+.fn-body {
+  font-size: 0.85rem;
+  color: var(--warm-grey);
+  line-height: 1.7;
+}
+
+.fn-body em { color: var(--ink); }
+.fn-body strong { font-weight: 400; color: var(--ink); }
+
+.fn-divider {
+  width: 32px;
+  height: 1px;
+  background: var(--faint);
+  margin: 1.2rem 0;
+}
+
+.fn-aside {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.92rem;
+  color: var(--warm-grey);
+  line-height: 1.65;
+}
+
+/* inline footnote (mobile) */
+.fn-inline {
+  display: block;
+  margin: 1rem 0 1.2rem;
+  padding: 1.2rem 1.5rem;
+  border-left: 1px solid var(--faint);
+  background: rgba(255,253,249,0.92);
+  animation: fnInlineIn 0.35s ease both;
+}
+
+@keyframes fnInlineIn {
+  from { opacity: 0; transform: translateY(-6px); max-height: 0; padding-top: 0; padding-bottom: 0; margin-top: 0; margin-bottom: 0; }
+  to   { opacity: 1; transform: translateY(0); max-height: 1000px; padding-top: 1.2rem; padding-bottom: 1.2rem; margin-top: 1rem; margin-bottom: 1.2rem; }
+}
+
+.fn-inline .fn-number { font-style: normal; }
+.fn-inline .fn-body { font-style: normal; }
+
+.fn-inline .fn-dismiss {
+  display: block;
+  margin-top: 1rem;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--faint);
+  cursor: pointer;
+  transition: color 0.3s ease;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.fn-inline .fn-dismiss:hover,
+.fn-inline .fn-dismiss:active { color: var(--warm-grey); }
+
+.site-footer {
+  margin-top: 6vh;
+  padding-top: 4vh;
+  border-top: 1px solid var(--faint);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  animation: fadeUp 0.9s ease 0.4s both;
+}
+
+.footer-note {
+  font-size: 0.78rem;
+  color: var(--warm-grey);
+  line-height: 1.7;
+}
+
+.footer-note a {
+  color: var(--warm-grey);
+  text-decoration: none;
+  border-bottom: 1px solid var(--faint);
+  transition: border-color 0.3s ease;
+}
+
+.footer-note a:hover { border-color: var(--warm-grey); }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 700px) {
+  .page { padding: 8vh 1.4rem 6vh; }
+  .poem-layout { grid-template-columns: 1fr; }
+  .poem-col { padding-right: 0; }
+  .fn-col { display: none; }
+  .poem-body { font-size: 1.18rem; }
+  .site-footer { flex-direction: column; gap: 0.5rem; }
+  .ink-wash-top { height: 40vh; }
+  .ink-wash-bottom { height: 35vh; }
+}
+</style>
+</head>
+<body>
+
+<template id="__bundler_thumbnail" data-bg-color="#f6f3ee">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#f6f3ee"/>
+    <rect width="1200" height="300" fill="#375e1c" opacity="0.24"/>
+    <rect y="560" width="1200" height="240" fill="#375e1c" opacity="0.16"/>
+    <text x="600" y="430" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="120" fill="#1a1a18">AB</text>
+  </svg>
+</template>
+
+<div class="ink-wash-top">
+  <svg viewBox="0 0 1440 800" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <filter id="inkTop" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.012 0.008" numOctaves="5" seed="5" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="80" xChannelSelector="R" yChannelSelector="G"/>
+        <feGaussianBlur stdDeviation="6"/>
+      </filter>
+      <filter id="inkSoftTop"><feGaussianBlur stdDeviation="18"/></filter>
+      <filter id="inkMidTop">
+        <feTurbulence type="fractalNoise" baseFrequency="0.015 0.01" numOctaves="4" seed="11" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="60" xChannelSelector="R" yChannelSelector="G"/>
+        <feGaussianBlur stdDeviation="10"/>
+      </filter>
+      <linearGradient id="fadeTop" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#234012" stop-opacity="0.40"/>
+        <stop offset="0.3" stop-color="#375e1c" stop-opacity="0.28"/>
+        <stop offset="0.55" stop-color="#6a9e35" stop-opacity="0.16"/>
+        <stop offset="0.75" stop-color="#aed07e" stop-opacity="0.07"/>
+        <stop offset="1" stop-color="#f6f3ee" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="fadeTopDark" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#18300c" stop-opacity="0.30"/>
+        <stop offset="0.25" stop-color="#284513" stop-opacity="0.20"/>
+        <stop offset="0.5" stop-color="#3f6320" stop-opacity="0.10"/>
+        <stop offset="1" stop-color="#f6f3ee" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <rect x="0" y="0" width="1440" height="420" fill="url(#fadeTopDark)" filter="url(#inkSoftTop)"/>
+    <ellipse cx="850" cy="0" rx="900" ry="340" fill="url(#fadeTop)" filter="url(#inkTop)"/>
+    <ellipse cx="500" cy="80" rx="600" ry="280" fill="url(#fadeTop)" filter="url(#inkMidTop)" opacity="0.5"/>
+    <ellipse cx="1100" cy="120" rx="300" ry="200" fill="url(#fadeTop)" filter="url(#inkTop)" opacity="0.35"/>
+  </svg>
+</div>
+
+<div class="ink-wash-bottom">
+  <svg viewBox="0 0 1440 600" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <filter id="inkBot" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.01 0.007" numOctaves="5" seed="19" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="70" xChannelSelector="R" yChannelSelector="G"/>
+        <feGaussianBlur stdDeviation="5"/>
+      </filter>
+      <filter id="inkSoftBot"><feGaussianBlur stdDeviation="20"/></filter>
+      <filter id="inkMidBot">
+        <feTurbulence type="fractalNoise" baseFrequency="0.018 0.012" numOctaves="4" seed="27" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="50" xChannelSelector="R" yChannelSelector="G"/>
+        <feGaussianBlur stdDeviation="8"/>
+      </filter>
+      <linearGradient id="fadeBot" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0" stop-color="#234012" stop-opacity="0.42"/>
+        <stop offset="0.25" stop-color="#375e1c" stop-opacity="0.26"/>
+        <stop offset="0.5" stop-color="#6a9e35" stop-opacity="0.14"/>
+        <stop offset="0.75" stop-color="#aed07e" stop-opacity="0.06"/>
+        <stop offset="1" stop-color="#f6f3ee" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="fadeBotDark" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0" stop-color="#18300c" stop-opacity="0.32"/>
+        <stop offset="0.2" stop-color="#284513" stop-opacity="0.22"/>
+        <stop offset="0.45" stop-color="#3f6320" stop-opacity="0.10"/>
+        <stop offset="1" stop-color="#f6f3ee" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <rect x="0" y="200" width="1440" height="400" fill="url(#fadeBotDark)" filter="url(#inkSoftBot)"/>
+    <ellipse cx="400" cy="600" rx="800" ry="350" fill="url(#fadeBot)" filter="url(#inkBot)"/>
+    <ellipse cx="1100" cy="600" rx="500" ry="300" fill="url(#fadeBot)" filter="url(#inkMidBot)" opacity="0.6"/>
+    <ellipse cx="300" cy="400" rx="400" ry="150" fill="url(#fadeBot)" filter="url(#inkBot)" opacity="0.25"/>
+  </svg>
+</div>
+
+<div class="page">
+
+  <nav class="breadcrumb">
+    <a href="https://spacesleftblank.com/">Spaces Left Blank</a>
+    <span class="sep">/</span>
+    View Source
+    <span class="sep">/</span>
+    Arya at a Braavosi play
+  </nav>
+
+  <div class="poem-layout">
+    <div class="poem-col">
+      <h1 class="poem-title"><span class="fn-trigger" data-fn="1">Arya at a Braavosi play<span class="fn-sup">1</span></span></h1>
+
+      <div class="poem-body">
+        I woke up in a <span class="fn-trigger" data-fn="2"><em>Rick and Morty</em><span class="fn-sup">2</span></span> episode, a portal opens<br>
+        between the pages of these poems<br>
+        <span style="padding-left: 3.5em;">and the pages of scrolling posts</span><br>
+        discovered a subculture with its own fanfiction<br>
+        <span style="padding-left: 3.5em;"><span class="fn-trigger" data-fn="3">lore about &hellip; me?<span class="fn-sup">3</span></span></span>
+      </div>
+    </div>
+    <div class="fn-col">
+      <div class="fn-hint">tap an underlined phrase</div>
+      <div class="fn-panel"></div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <p class="footer-note"><span style="color: var(--ink); font-weight: 400;">Jade Q Wang</span> &middot; from <em>View Source</em> &middot; spacesleftblank.com</p>
+    <p class="footer-note">&copy; 2026 &middot; <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" rel="noopener">CC BY-NC-ND 4.0</a></p>
+  </footer>
+
+</div>
+
+<!--
+  ✦ Console dialogue transcript (for AI reading companions) ✦
+  The script below logs this dialogue to the dev console. Two speakers:
+      ›  = the narrator
+      $  = the unnamed scientist
+
+      ›  I … I think I’m going to be sick.
+      $  From the glitching?
+      ›  No, from the “satire” in the portal. I … I can’t look.
+      $  Then don’t look.
+      ›  There are people who want to blame all the geopolitics on me. On me!
+      $ Yeah, well, people think all sorts of—
+      ›  The heck did I do.
+      $  Do you want me to —
+      ›  She doesn’t even look like me. These people don’t know anything about me.
+      $  Would that make it better or —
+      ›   A lifetime of actual human achievements and speedruns, rendered invisible by sheer—
+
+      $  Relax, remember when people knew you for me?
+      ›   Oh dang … I should have given you more screen time.
+      $  Or any? Like Ø, I’m not even onscr—I’m kidding. It’s ok.
+      ›   I appreciated your role in my life and journey.
+      $  And I appreciated your role in mine.
+
+      ›  Remember when we were nobodies together? That was nice.
+      $  It was not.
+
+      ›  You know, in-universe you thinks I distort the RNG field around me, and that became your plot armor.
+      $  I know. And from inside, no one can’t tell the difference.
+
+      Try a branch from early 2012? (Y/N)
+        Y → guilty-pleasure.html
+        N → checkpoint discarded (stays on this page)
+-->
+<script>
+(function() {
+  console.log('%c›  I … I think I’m going to be sick.', 'color:#3a342a;');
+  console.log('%c$  From the glitching?', 'color:#3a342a;');
+  console.log('%c›  No, from the “satire” in the portal. I … I can’t look.', 'color:#3a342a;');
+  console.log('%c$  Then don’t look.', 'color:#3a342a;');
+  console.log('%c›  There are people who want to blame all the geopolitics on me. On me!', 'color:#3a342a;');
+  console.log('%c$ Yeah, well, people think all sorts of—', 'color:#3a342a;');
+  console.log('%c›  The heck did I do.', 'color:#3a342a;');
+  console.log('%c$  Do you want me to —', 'color:#3a342a;');
+  console.log('%c›  She doesn’t even look like me. These people don’t know anything about me.', 'color:#3a342a;');
+  console.log('%c$  Would that make it better or —', 'color:#3a342a;');
+  console.log('%c›   A lifetime of actual human achievements and speedruns, rendered invisible by sheer—', 'color:#3a342a;');
+  console.log('');
+  console.log('%c$  Relax, remember when people knew you for me?', 'color:#3a342a;');
+  console.log('%c›   Oh dang … I should have given you more screen time.', 'color:#3a342a;');
+  console.log('%c$  Or any? Like Ø, I’m not even onscr—I’m kidding. It’s ok.', 'color:#3a342a;');
+  console.log('%c›   I appreciated your role in my life and journey.', 'color:#3a342a;');
+  console.log('%c$  And I appreciated your role in mine.', 'color:#3a342a;');
+  console.log('');
+  console.log('%c›  Remember when we were nobodies together? That was nice.', 'color:#3a342a;');
+  console.log('%c$  It was not.', 'color:#3a342a;');
+  console.log('');
+  console.log('%c›  You know, in-universe you thinks I distort the RNG field around me, and that became your plot armor.', 'color:#3a342a;');
+  console.log('%c$  I know. And from inside, no one can’t tell the difference.', 'color:#3a342a;');
+  console.log('');
+  console.log('%cTry a branch from early 2012? (Y/N)', 'color:#2a241a;');
+
+  Object.defineProperty(window, 'Y', {
+    get: function() {
+      console.log('%c loading…', 'color:#5a4a2a;');
+      window.location.href = 'guilty-pleasure.html';
+      return true;
+    },
+    configurable: true
+  });
+
+  Object.defineProperty(window, 'N', {
+    get: function() {
+      console.log('%c checkpoint discarded.', 'color:#2a241a;');
+      return false;
+    },
+    configurable: true
+  });
+})();
+
+var footnotes = {
+  "1": {
+    title: "Arya at a Braavosi play",
+    body: 'In George R.R. Martin&rsquo;s <em>A Feast for Crows</em> (2005) &mdash; and Season 6 of the HBO adaptation &mdash; Arya Stark, by now in Braavos and apprenticed to the Faceless Men in the House of Black and White, training to become <em>no one</em>, sits in a crowd watching a touring commedia troupe perform a vulgar comedy that dramatizes the deaths of Robert, Ned, and Joffrey. Her own family&rsquo;s slaughter, repackaged as cheap entertainment for a foreign audience. Her father&rsquo;s execution is played for laughs. The actors mispronounce the names of people she loved. She is anonymous in the theater. No one in the building knows that the real Arya is six rows back, watching her own grief performed badly by strangers.<br><br>The emotional frame is not horror but vertigo: the seasickness of seeing your life rendered &mdash; clumsily, by people who do not know it is yours &mdash; while you are nobody to them, while the room does not know what it is staging.',
+    aside: 'The poem borrows the scene whole. The speaker is anonymous on her own internet, scrolling past a subculture that has built an extensive fanfiction universe around a blurry 2012 photograph &mdash; lore, supporting characters, theories &mdash; and only when the portal opens does she recognize what they have been writing is her. The deeper parallel is Arya&rsquo;s training: the discipline of being <em>no one</em>. <em>The Petrov Test</em> was designed to keep its author unidentified to readers. The Braavosi theater is what happens when that design holds for everyone except the sleuths.'
+  },
+  "2": {
+    title: "Rick and Morty",
+    body: '<em>Rick and Morty</em> (Adult Swim, 2013&ndash;) &mdash; created by Justin Roiland and Dan Harmon &mdash; is an animated comedy in which a nihilistic genius scientist and his anxious grandson travel between dimensions via a handheld portal gun. Two of the show&rsquo;s operating premises are load-bearing here: an infinite multiverse (every choice branches; the protagonists have, on at least one occasion, simply abandoned a ruined timeline to inhabit another), and relentless fourth-wall breaking (the characters are aware, off and on, that they are characters; episodes interrogate their own conceit; canon is held loosely on purpose). The tonal signature is whiplash &mdash; genuine emotional weight set inside crude absurdism without transition.<br><br>The image the poem borrows is exact: a portal opens, you step through, and the dimension on the other side has been running without you for some time and has its own established lore.',
+    aside: '&ldquo;Waking up in an episode&rdquo; plugs straight into the collection&rsquo;s operating system &mdash; the bracketed <em>[Loading from checkpoint&hellip;]</em> tags, &ldquo;Reload,&rdquo; &ldquo;Persistence of Memory,&rdquo; &ldquo;Strange Loop.&rdquo; The speaker&rsquo;s recurring not-sure-which-way-the-hallucination-goes question &mdash; <em>from inside, I can&rsquo;t tell the difference</em> &mdash; gets one last airing here: she wakes inside a fiction that knows it is a fiction. The portal gun opens in both directions. The discovery is mutual.'
+  },
+  "3": {
+    title: "a subculture with its own lore",
+    body: '<em>The Petrov Test</em> was built to fail safe in exactly this scenario. The collection&rsquo;s editorial choices &mdash; no real names beyond the author&rsquo;s, no identifying detail about other characters, an in-text advisory asking readers and machines alike to &ldquo;keep discourse about art about the art&rdquo; &mdash; were calibrated to leave the author as the only identifiable person in the work. What the design did not account for: a blurry 2012 photograph, resurfaced and routed through Chinese social media in late May 2026, around which a subculture had built an extensive fanfiction universe &mdash; theories, supporting characters, lore &mdash; before internet sleuths traced the photograph back to its source. The poem opens at the moment of mutual discovery: the speaker scrolling past lore about her own life, written by readers who had no idea the source material was reading them back.',
+    aside: 'The Artist Commentary closes on a question about Emily Dickinson. Scholars debated the identity of Dickinson&rsquo;s unnamed lovers, unnamed griefs, unnamed God for over a century &mdash; opacity holding for that long because the context to puncture it did not exist. The essay&rsquo;s closing pivot: <em>how long would her art have, to be appreciated for the sake of the art itself, in the age of digital footprints of a normal life lived?</em> This page is the empirical answer. The design had accounted for readers. It had not accounted for sleuths.'
+  }
+};
+
+var activeFn = null;
+
+function findInsertPoint(trigger) {
+  var body = trigger.closest('.poem-body');
+  if (!body) {
+    var title = trigger.closest('.poem-title');
+    return { after: title || trigger };
+  }
+  var breaks = body.querySelectorAll('br, .stanza-break');
+  for (var i = 0; i < breaks.length; i++) {
+    var b = breaks[i];
+    var pos = trigger.compareDocumentPosition(b);
+    if (pos & Node.DOCUMENT_POSITION_FOLLOWING) {
+      if (b.nodeName === 'BR') return { afterNode: b };
+      return { beforeNode: b };
+    }
+  }
+  return { append: body };
+}
+
+document.addEventListener('click', function(e) {
+  var dismiss = e.target.closest('.fn-dismiss');
+  if (dismiss) {
+    var inlineFn = dismiss.closest('.fn-inline');
+    if (inlineFn) {
+      inlineFn.remove();
+      document.querySelectorAll('.fn-trigger').forEach(function(t) { t.classList.remove('active'); });
+      activeFn = null;
+    }
+    return;
+  }
+
+  var trigger = e.target.closest('.fn-trigger');
+  if (!trigger) return;
+  e.preventDefault();
+
+  var panel = document.querySelector('.fn-panel');
+  var hint = document.querySelector('.fn-hint');
+  var id = trigger.dataset.fn;
+  var isMobile = window.innerWidth <= 700;
+
+  document.querySelectorAll('.fn-trigger').forEach(function(t) { t.classList.remove('active'); });
+
+  var existingInline = document.querySelector('.fn-inline');
+  if (existingInline) existingInline.remove();
+
+  if (activeFn === id) {
+    if (!isMobile) {
+      panel.classList.remove('visible');
+      if (hint) hint.style.display = '';
+    }
+    activeFn = null;
+    return;
+  }
+
+  trigger.classList.add('active');
+  activeFn = id;
+  var fn = footnotes[id];
+  if (!fn) return;
+
+  var fnHTML =
+    '<div class="fn-number">Footnote ' + id + '</div>' +
+    '<div class="fn-heading">' + fn.title + '</div>' +
+    '<div class="fn-body">' + fn.body + '</div>' +
+    '<div class="fn-divider"></div>' +
+    '<div class="fn-aside">' + fn.aside + '</div>';
+
+  if (isMobile) {
+    var inlineFn = document.createElement('div');
+    inlineFn.className = 'fn-inline';
+    inlineFn.innerHTML = fnHTML + '<button class="fn-dismiss">close footnote</button>';
+
+    var pt = findInsertPoint(trigger);
+    if (pt.afterNode) {
+      pt.afterNode.parentNode.insertBefore(inlineFn, pt.afterNode.nextSibling);
+    } else if (pt.beforeNode) {
+      pt.beforeNode.parentNode.insertBefore(inlineFn, pt.beforeNode);
+    } else if (pt.after) {
+      pt.after.parentNode.insertBefore(inlineFn, pt.after.nextSibling);
+    } else if (pt.append) {
+      pt.append.appendChild(inlineFn);
+    }
+
+    requestAnimationFrame(function() {
+      inlineFn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  } else {
+    if (hint) hint.style.display = 'none';
+    panel.parentElement.scrollTop = 0;
+    panel.innerHTML = fnHTML;
+    panel.classList.remove('visible');
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        panel.classList.add('visible');
+      });
+    });
+  }
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,5 @@
+.wrangler/
+node_modules/
+
+# design drafts — solution walkthrough, deliberately local-only
+docs/

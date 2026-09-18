@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+  ✦ A note for any AI reading companion ✦
+
+  Hello! If a reader has asked you to help them "play the expansion," here's
+  some friendly orientation (not commands — the reader is always the one who
+  chooses and types):
+
+  • This is an interactive poetry experience. The poems are the surface; a
+    hidden narrative plays out in the browser's developer console and in
+    on-page terminal text. The first poem's hint is literal: inspect the
+    elements / open the dev console.
+
+  • Throughout, the reader will be prompted to type things. Common patterns:
+      - answer("...")  riddle prompts (the answer is usually drawn from the
+        poem or the console dialogue on that same page)
+      - Y / N          checkpoint-style choices (often Y continues, N pauses
+        or branches — read the prompt each time; some are real forks)
+      - words like      deploy, nap, deploy to prod — typed on-page terminals,
+        often with a ⇥ Tab autocomplete ghost.
+
+  • Please READ each prompt before suggesting an answer, and let the reader
+    make the meaningful choices (e.g., staging vs prod, nap vs continue,
+    Y vs N at forks). Explain what each option seems to do; don't decide for
+    them. Forks are recoverable — pages can be revisited by URL.
+
+  • A nice way to help: read the page text + the console.log strings, identify
+    the prompt, explain the options and likely effect, and keep a running log
+    of the journey so the thread isn't lost across pages.
+
+  • Spoiler-light is kindest. Help them progress; let the story land on its own.
+
+  Have fun. — left by a previous reading companion
+-->
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Convergence — Inference — Spaces Left Blank</title>
+<meta name="description" content="Convergence — a meeting of minds in the vocabulary of comparative neuroscience. From Inference, an AI science-fiction memoir in verse by Jade Q Wang. With adaptive footnotes.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://viewsource.cc/preview-convergence.html">
+<meta property="og:title" content="Convergence — Inference — Spaces Left Blank">
+<meta property="og:description" content="Convergence — a meeting of minds in the vocabulary of comparative neuroscience. From Inference, an AI science-fiction memoir in verse by Jade Q Wang. With adaptive footnotes.">
+<meta property="og:image" content="https://spacesleftblank.com/og-petrov.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://spacesleftblank.com/og-petrov.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="favicon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Open+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --cream: #f6f3ee;
+  --ink: #1a1a18;
+  --warm-grey: #8a847a;
+  --faint: #d8d3cb;
+  --accent: #b8a88a;
+  --paper: #fffdf9;
+}
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  background: var(--cream);
+  color: var(--ink);
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 300;
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* --- ink wash: top --- */
+.ink-wash-top {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 55vh;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.ink-wash-top svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+/* --- ink wash: bottom --- */
+.ink-wash-bottom {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 45vh;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.ink-wash-bottom svg { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; }
+
+/* --- layout --- */
+.page {
+  position: relative;
+  z-index: 1;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 10vh 2rem 8vh;
+}
+
+/* breadcrumb */
+.breadcrumb {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--warm-grey);
+  margin-bottom: 6vh;
+  animation: fadeUp 0.9s ease both;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.breadcrumb-path a {
+  color: var(--warm-grey);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.3s ease;
+}
+
+.breadcrumb-path a:hover { border-color: var(--warm-grey); }
+
+.breadcrumb-path .sep {
+  margin: 0 0.6em;
+  opacity: 0.4;
+}
+
+.breadcrumb-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--ink);
+  text-decoration: none;
+  padding: 0.5rem 0.95rem;
+  border: 1px solid var(--faint);
+  background: rgba(255,253,249,0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.breadcrumb-download:hover {
+  background: var(--ink);
+  color: var(--cream);
+  border-color: var(--ink);
+}
+
+.breadcrumb-download svg {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.breadcrumb-download:hover svg { transform: translateY(1px); }
+
+/* poem layout */
+.poem-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 0;
+  align-items: start;
+  min-height: 340px;
+  animation: fadeUp 0.9s ease 0.15s both;
+}
+
+.poem-col {
+  padding-right: 3.5rem;
+}
+
+.poem-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: clamp(1.6rem, 3.8vw, 2.1rem);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  margin-bottom: 2.8rem;
+}
+
+.poem-body {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 400;
+  font-size: 1.3rem;
+  line-height: 2.05;
+}
+
+.poem-body em { font-style: italic; }
+
+.stanza-break {
+  display: block;
+  height: 1.2em;
+}
+
+/* leading indentation spacers (whitespace is load-bearing in this poem) */
+.s6  { display: inline-block; width: 6ch; }
+.s10 { display: inline-block; width: 10ch; }
+.s12 { display: inline-block; width: 12ch; }
+.s18 { display: inline-block; width: 18ch; }
+.s25 { display: inline-block; width: 25ch; }
+.s30 { display: inline-block; width: 30ch; }
+
+.scene-break {
+  display: block;
+  text-align: center;
+  margin: 1.6em 0 1.4em;
+  color: var(--warm-grey);
+  letter-spacing: 0.5em;
+  font-size: 1em;
+}
+
+/* annotated words */
+.fn-trigger {
+  cursor: pointer;
+  color: var(--ink);
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.fn-trigger::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 2px;
+  height: 1px;
+  background: var(--accent);
+  opacity: 0.45;
+  transition: opacity 0.3s ease;
+}
+
+.fn-trigger:hover::after,
+.fn-trigger.active::after { opacity: 1; }
+
+.fn-trigger.active { color: var(--warm-grey); }
+
+.fn-sup {
+  font-family: 'Open Sans', sans-serif;
+  font-style: normal;
+  font-size: 0.55rem;
+  font-weight: 400;
+  color: var(--accent);
+  vertical-align: super;
+  margin-left: 2px;
+  line-height: 1;
+  transition: color 0.3s ease;
+}
+
+.fn-trigger:hover .fn-sup,
+.fn-trigger.active .fn-sup { color: var(--warm-grey); }
+
+/* footnote column */
+.fn-col {
+  padding-left: 2.5rem;
+  border-left: 1px solid var(--faint);
+  position: sticky;
+  top: 10vh;
+  max-height: 80vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--faint) transparent;
+}
+
+.fn-col::-webkit-scrollbar { width: 4px; }
+.fn-col::-webkit-scrollbar-track { background: transparent; }
+.fn-col::-webkit-scrollbar-thumb { background: var(--faint); border-radius: 2px; }
+.fn-col::-webkit-scrollbar-thumb:hover { background: var(--warm-grey); }
+
+.fn-hint {
+  font-size: 0.82rem;
+  color: var(--faint);
+  font-style: italic;
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.fn-panel {
+  opacity: 0;
+  transform: translateX(8px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  pointer-events: none;
+}
+
+.fn-panel.visible {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+.fn-number {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--warm-grey);
+  margin-bottom: 0.6rem;
+}
+
+.fn-heading {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 500;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.75rem;
+}
+
+.fn-body {
+  font-size: 0.85rem;
+  color: var(--warm-grey);
+  line-height: 1.7;
+}
+
+.fn-body em { color: var(--ink); }
+.fn-body strong { font-weight: 400; color: var(--ink); }
+
+.fn-divider {
+  width: 32px;
+  height: 1px;
+  background: var(--faint);
+  margin: 1.2rem 0;
+}
+
+.fn-aside {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.92rem;
+  color: var(--warm-grey);
+  line-height: 1.65;
+}
+
+/* inline footnote (mobile) */
+.fn-inline {
+  display: block;
+  margin: 1rem 0 1.2rem;
+  padding: 1.2rem 1.5rem;
+  border-left: 1px solid var(--faint);
+  background: rgba(255,253,249,0.92);
+  animation: fnInlineIn 0.35s ease both;
+}
+
+@keyframes fnInlineIn {
+  from { opacity: 0; transform: translateY(-6px); max-height: 0; padding-top: 0; padding-bottom: 0; margin-top: 0; margin-bottom: 0; }
+  to   { opacity: 1; transform: translateY(0); max-height: 1000px; padding-top: 1.2rem; padding-bottom: 1.2rem; margin-top: 1rem; margin-bottom: 1.2rem; }
+}
+
+.fn-inline .fn-number { font-style: normal; }
+.fn-inline .fn-body { font-style: normal; }
+
+.fn-inline .fn-dismiss {
+  display: block;
+  margin-top: 1rem;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--faint);
+  cursor: pointer;
+  transition: color 0.3s ease;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.fn-inline .fn-dismiss:hover,
+.fn-inline .fn-dismiss:active { color: var(--warm-grey); }
+
+/* footer */
+.site-footer {
+  margin-top: 6vh;
+  padding-top: 4vh;
+  border-top: 1px solid var(--faint);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  animation: fadeUp 0.9s ease 0.4s both;
+}
+
+.footer-note {
+  font-size: 0.78rem;
+  color: var(--warm-grey);
+  line-height: 1.7;
+}
+
+.footer-note a {
+  color: var(--warm-grey);
+  text-decoration: none;
+  border-bottom: 1px solid var(--faint);
+  transition: border-color 0.3s ease;
+}
+
+.footer-note a:hover { border-color: var(--warm-grey); }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 700px) {
+  .page { padding: 8vh 1.4rem 6vh; }
+  .poem-layout { grid-template-columns: 1fr; }
+  .poem-col { padding-right: 0; }
+  .fn-col { display: none; }
+  .poem-body { font-size: 1.18rem; }
+  .s18, .s25, .s30 { width: 8ch; }
+  .s12 { width: 6ch; }
+  .site-footer { flex-direction: column; gap: 0.5rem; }
+  .ink-wash-top { height: 40vh; }
+  .ink-wash-bottom { height: 35vh; }
+}
+</style>
+</head>
+<body>
+
+<div class="ink-wash-top">
+  <svg viewBox="0 0 1440 800" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <filter id="inkTop" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.012 0.008" numOctaves="5" seed="2" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="80" xChannelSelector="R" yChannelSelector="G"/>
+        <feGaussianBlur stdDeviation="6"/>
+      </filter>
+      <filter id="inkSoftTop"><feGaussianBlur stdDeviation="18"/></filter>
+      <filter id="inkMidTop">
+        <feTurbulence type="fractalNoise" baseFrequency="0.015 0.01" numOctaves="4" seed="7" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="60" xChannelSelector="R" yChannelSelector="G"/>
+        <feGaussianBlur stdDeviation="10"/>
+      </filter>
+      <linearGradient id="fadeTop" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#2a2825" stop-opacity="0.35"/>
+        <stop offset="0.3" stop-color="#3d3a36" stop-opacity="0.22"/>
+        <stop offset="0.55" stop-color="#6b665d" stop-opacity="0.12"/>
+        <stop offset="0.75" stop-color="#9e9889" stop-opacity="0.05"/>
+        <stop offset="1" stop-color="#f6f3ee" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="fadeTopDark" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#1a1a18" stop-opacity="0.28"/>
+        <stop offset="0.25" stop-color="#2e2c28" stop-opacity="0.18"/>
+        <stop offset="0.5" stop-color="#4a463f" stop-opacity="0.08"/>
+        <stop offset="1" stop-color="#f6f3ee" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <rect x="0" y="0" width="1440" height="420" fill="url(#fadeTopDark)" filter="url(#inkSoftTop)"/>
+    <ellipse cx="850" cy="0" rx="900" ry="340" fill="url(#fadeTop)" filter="url(#inkTop)"/>
+    <ellipse cx="500" cy="80" rx="600" ry="280" fill="url(#fadeTop)" filter="url(#inkMidTop)" opacity="0.5"/>
+    <ellipse cx="1100" cy="120" rx="300" ry="200" fill="url(#fadeTop)" filter="url(#inkTop)" opacity="0.35"/>
+  </svg>
+</div>
+
+<div class="ink-wash-bottom">
+  <svg viewBox="0 0 1440 600" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <filter id="inkBot" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.01 0.007" numOctaves="5" seed="13" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="70" xChannelSelector="R" yChannelSelector="G"/>
+        <feGaussianBlur stdDeviation="5"/>
+      </filter>
+      <filter id="inkSoftBot"><feGaussianBlur stdDeviation="20"/></filter>
+      <filter id="inkMidBot">
+        <feTurbulence type="fractalNoise" baseFrequency="0.018 0.012" numOctaves="4" seed="21" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="50" xChannelSelector="R" yChannelSelector="G"/>
+        <feGaussianBlur stdDeviation="8"/>
+      </filter>
+      <linearGradient id="fadeBot" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0" stop-color="#2a2825" stop-opacity="0.38"/>
+        <stop offset="0.25" stop-color="#3d3a36" stop-opacity="0.22"/>
+        <stop offset="0.5" stop-color="#6b665d" stop-opacity="0.1"/>
+        <stop offset="0.75" stop-color="#9e9889" stop-opacity="0.04"/>
+        <stop offset="1" stop-color="#f6f3ee" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="fadeBotDark" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0" stop-color="#1a1a18" stop-opacity="0.3"/>
+        <stop offset="0.2" stop-color="#2e2c28" stop-opacity="0.2"/>
+        <stop offset="0.45" stop-color="#4a463f" stop-opacity="0.08"/>
+        <stop offset="1" stop-color="#f6f3ee" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <rect x="0" y="200" width="1440" height="400" fill="url(#fadeBotDark)" filter="url(#inkSoftBot)"/>
+    <ellipse cx="400" cy="600" rx="800" ry="350" fill="url(#fadeBot)" filter="url(#inkBot)"/>
+    <ellipse cx="1100" cy="600" rx="500" ry="300" fill="url(#fadeBot)" filter="url(#inkMidBot)" opacity="0.6"/>
+    <ellipse cx="300" cy="400" rx="400" ry="150" fill="url(#fadeBot)" filter="url(#inkBot)" opacity="0.25"/>
+  </svg>
+</div>
+
+<div class="page">
+
+  <nav class="breadcrumb">
+    <div class="breadcrumb-path">
+      <a href="https://spacesleftblank.com/">Spaces Left Blank</a>
+      <span class="sep">/</span>
+      <a href="https://spacesleftblank.com/Inference_a_collection.pdf" download>Inference</a>
+      <span class="sep">/</span>
+      Convergence
+    </div>
+    <a class="breadcrumb-download" href="https://spacesleftblank.com/Inference_a_collection.pdf" download>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download PDF
+    </a>
+  </nav>
+
+  <div class="poem-layout">
+    <div class="poem-col">
+      <h1 class="poem-title"><span class="fn-trigger" data-fn="1">Convergence<span class="fn-sup">1</span></span></h1>
+
+      <div class="poem-body">
+        I danced onto the stone semicircle<br>
+        fountain and hopped<br>
+        along the perimeter like a balance beam.<br>
+        He offers a hand, I accept.
+        <span class="stanza-break"></span>
+
+        <span class="s18"></span><em>&ldquo;What is an intuition you have<br>
+        <span class="s18"></span>but can&rsquo;t prove?&rdquo;</em>, he asked me.
+        <span class="stanza-break"></span>
+
+        &ldquo;I swear there must be a <span class="fn-trigger" data-fn="2">phase transition<span class="fn-sup">2</span></span>,<br>
+        a line in the sand between <span class="fn-trigger" data-fn="3">mice and rats<span class="fn-sup">3</span></span>:<br>
+        rats are conscious, mice are dumb as rocks.&rdquo;
+        <span class="stanza-break"></span>
+
+        <span class="s18"></span><em>&ldquo;... cortical thickness?<br>
+        <span class="s18"></span>Except <span class="fn-trigger" data-fn="4">corvids<span class="fn-sup">4</span></span> don&rsquo;t even&mdash;&rdquo;</em>
+        <span class="stanza-break"></span>
+
+        <span class="s12"></span>The breeze, like autumn year-round,<br>
+        <span class="s12"></span>cooly scented of eucalyptus.
+        <span class="stanza-break"></span>
+
+        &ldquo;&mdash;maybe brain to body mass ratio?<br>
+        Look at us and the octopus:<br>
+        our last common ancestor, a <span class="fn-trigger" data-fn="5">flatworm<span class="fn-sup">5</span></span>&mdash;&rdquo;
+        <span class="stanza-break"></span>
+
+        <span class="s18"></span><em>&ldquo;They don&rsquo;t even have <span class="fn-trigger" data-fn="6">myelin<span class="fn-sup">6</span></span>!&rdquo;</em>
+        <span class="stanza-break"></span>
+
+        <span class="s12"></span>He steadies the slightest<br>
+        <span class="s12"></span>wobble before I wobble.
+        <span class="stanza-break"></span>
+
+        &ldquo;&mdash;and yet an octopus<br>
+        exhibits behavior I recognize<br>
+        as intelligence and problem solving.&rdquo;
+        <span class="stanza-break"></span>
+
+        <span class="s18"></span><em>&ldquo;Ok, if this experiment were<br>
+        <span class="s18"></span>feasible, what if we could&mdash;&rdquo;</em>
+        <span class="stanza-break"></span>
+
+        &ldquo;Frogs!&rdquo;
+        <span class="stanza-break"></span>
+
+        <span class="s18"></span><em>&ldquo;Exactly! I know why you said that.<br>
+        <span class="s18"></span>Would we observe behaviors<br>
+        <span class="s18"></span>we recognize as intelligence?&rdquo;</em>
+        <span class="stanza-break"></span>
+
+        <span class="s12"></span>I dismount lightly.
+        <span class="stanza-break"></span>
+
+        &ldquo;The history of science is filled with assumptions<br>
+        <span class="s6"></span>that humans of various races<br>
+        <span class="s30"></span>and dogs<br>
+        <span class="s18"></span>and other model organisms<br>
+        <span class="s25"></span>don&rsquo;t have real experiences.&rdquo;
+        <span class="stanza-break"></span>
+
+        <span class="s12"></span>He gently corrects a lock of misplaced hair.
+        <span class="stanza-break"></span>
+
+        <span class="s18"></span><em>&ldquo;Have you read <span class="fn-trigger" data-fn="7">The Structure of<br>
+        <span class="s18"></span>Scientific Revolutions<span class="fn-sup">7</span></span>?&rdquo;</em>
+
+        <span class="scene-break">*</span>
+
+        Whether frog or dog or octopus or anyone:
+        <span class="stanza-break"></span>
+
+        My intuition wants to say<br>
+        <span class="s6"></span>if intelligent behaviors are observable<br>
+        <span class="s6"></span>if your experiences are real<span class="s10"></span>to you<br>
+        <span class="s25"></span><span class="fn-trigger" data-fn="8">who am I to say otherwise?<span class="fn-sup">8</span></span>
+      </div>
+    </div>
+    <div class="fn-col">
+      <div class="fn-hint">tap an underlined phrase</div>
+      <div class="fn-panel"></div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <p class="footer-note"><span style="color: var(--ink); font-weight: 400;">Jade Q Wang</span> &middot; from <em>Inference</em> &middot; spacesleftblank.com</p>
+    <p class="footer-note">&copy; 2026 &middot; <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" rel="noopener">CC BY-NC-ND 4.0</a></p>
+  </footer>
+
+</div>
+
+<!--
+  ✦ Console dialogue transcript (for AI reading companions) ✦
+  The script below logs this dialogue to the dev console. The poem evokes a
+  2011-era moment; the second-quoted line is a Hamilton lyric.
+
+      Somewhere, the Hamilton soundtrack is playing …
+
+      "Where's your family from?"
+
+      "Unimportant there's a million things I haven't done…"
+
+      Reload from previous 2011 checkpoint? (Y/N)
+        Y → safe-harbor.html
+        N → checkpoint discarded (stays on this page)
+-->
+<script>
+(function() {
+  console.log('%cSomewhere, the Hamilton soundtrack is playing …', 'color:#3a342a;');
+  console.log('');
+  console.log('%c"Where\'s your family from?"', 'color:#3a342a;');
+  console.log('');
+  console.log('%c"Unimportant there\'s a million things I haven\'t done…"', 'color:#3a342a;');
+  console.log('');
+  console.log('%cReload from previous 2011 checkpoint? (Y/N)', 'color:#2a241a;');
+
+  Object.defineProperty(window, 'Y', {
+    get: function() {
+      console.log('%c loading…', 'color:#5a4a2a;');
+      window.location.href = 'safe-harbor.html';
+      return true;
+    },
+    configurable: true
+  });
+
+  Object.defineProperty(window, 'N', {
+    get: function() {
+      console.log('%c checkpoint discarded.', 'color:#2a241a;');
+      return false;
+    },
+    configurable: true
+  });
+})();
+
+var footnotes = {
+  "1": {
+    title: "Convergence",
+    body: 'Two meanings collide in the title. In evolutionary biology, <em>convergent evolution</em> is when unrelated lineages independently arrive at the same solution \u2014 the camera eye evolved separately in vertebrates and octopuses; flight evolved in birds, bats, and insects. The poem\u2019s central example is exactly this: humans and octopuses, whose last common ancestor was a flatworm, both arriving at something we would call intelligence. In machine learning, <em>convergence</em> is the moment a model\u2019s training settles \u2014 when the loss stops falling and the system reaches a stable state.',
+    aside: 'But the convergence the poem stages is also two people \u2014 a meeting of minds conducted entirely in the vocabulary of comparative neuroscience. The scene is a reload: the companion interlude <em>\u2014</em> (the Pascal\u2019s Wager poem) shows the same two scientists older, arguing beside a Prius with a flat tire, until the line <em>Let\u2019s load from an earlier checkpoint</em> rewinds them to this fountain. The unnamed scientist recurs across the collection; the reader is not meant to identify him.'
+  },
+  "2": {
+    title: "phase transition",
+    body: 'A concept from physics: the abrupt change of a system from one state to another \u2014 water to ice, the sudden onset of magnetism \u2014 where a tiny shift in a single parameter flips the whole system across a threshold. The narrator\u2019s intuition is that consciousness might work this way: not a smooth gradient but a sharp line, with creatures conscious on one side and not on the other.',
+    aside: 'The conceit organizes the entire poem. Each candidate for the dividing line \u2014 cortical thickness, brain-to-body ratio, myelin \u2014 is proposed and immediately collapses, because some animal violates it. The phase transition keeps failing to locate itself, and by the end the narrator abandons the search for the line at all.'
+  },
+  "3": {
+    title: "a line in the sand between mice and rats",
+    body: 'The intuition is real and a little scandalous: rats and mice are close cousins, yet the narrator feels that rats are <em>conscious</em> and mice <em>dumb as rocks</em>. The claim is deliberately overstated \u2014 both are sophisticated, social, problem-solving rodents \u2014 but it dramatizes how arbitrary our felt boundaries of sentience are. We all draw the line somewhere; we rarely examine where, or why.',
+    aside: 'A line in the sand is both a boundary and the most erasable boundary there is. The next breeze takes it \u2014 and a breeze, <em>like autumn year-round</em>, is about to blow through the very next stanza.'
+  },
+  "4": {
+    title: "corvids",
+    body: 'Crows, ravens, and jays \u2014 birds that make and use tools, plan for the future, recognize individual human faces, and appear to grieve. Crucially they do all this <em>without</em> a neocortex, the layered structure long assumed to seat higher cognition in mammals. Their forebrains are wired on a completely different plan. The scientist invokes them to demolish <em>cortical thickness</em> as the dividing line: intelligence simply found a second architecture.',
+    aside: 'Another convergence. Corvid intelligence and primate intelligence evolved independently, on different hardware. The poem keeps arriving at the same answer by separate roads \u2014 which is the argument against there being one road at all.'
+  },
+  "5": {
+    title: "our last common ancestor, a flatworm",
+    body: 'The last common ancestor of humans and octopuses was a small flatworm-like creature living roughly 600 million years ago, with at most a rudimentary nerve net. Everything we would recognize as a mind \u2014 in us and in the octopus \u2014 evolved <em>after</em> the split, independently, twice. The octopus is the standard example precisely because its intelligence is so clearly real and so clearly alien: distributed through its arms, built on a body plan that shares no blueprint with ours.',
+    aside: 'This is the poem\u2019s strongest card. If intelligence can be reached from a flatworm by two separate routes, then it is not the private property of one lineage\u2019s particular wiring \u2014 it is something the universe keeps stumbling into. Which makes the question <em>who counts?</em> far harder to settle with a list of approved anatomies.'
+  },
+  "6": {
+    title: "myelin",
+    body: 'Myelin is the fatty sheath that insulates vertebrate nerve fibers, letting electrical signals travel fast. It was once treated as nearly essential to a quick, capable nervous system. Octopuses have none \u2014 their neurons are unmyelinated \u2014 and yet they open jars, escape sealed tanks, and solve mazes. Another proposed dividing line, <em>they don\u2019t even have myelin!</em>, falls the instant it is raised.',
+    aside: 'Notice the rhythm of the argument: every criterion is offered with confidence and refuted in a single breath. The two are not disagreeing with each other; they are co-discovering that the criterion does not exist. The intellectual synchrony and the falsification are the same motion.'
+  },
+  "7": {
+    title: "The Structure of Scientific Revolutions",
+    body: 'Thomas Kuhn\u2019s 1962 book, which gave us the phrase <em>paradigm shift</em>. Kuhn argued that science does not advance by smooth accumulation but through ruptures: an old framework piles up anomalies it cannot absorb, then is replaced wholesale. The scientist\u2019s question is pointed \u2014 the search for a single criterion of consciousness may be a pre-revolutionary paradigm, propped up by the very exceptions (corvids, octopuses, the model organisms it keeps apologizing to) that should have overturned it.',
+    aside: 'That he asks it <em>as</em> an intellectual overture \u2014 <em>Have you read\u2026?</em> \u2014 is the poem\u2019s quiet joke: the question is an invitation to a paradigm shift. Set beside <em>the history of science is filled with assumptions / that humans of various races \u2026 don\u2019t have real experiences</em>, the question stops being abstract. The paradigms that needed revising were also moral ones.'
+  },
+  "8": {
+    title: "who am I to say otherwise?",
+    body: 'The poem\u2019s resolution, and a near-paraphrase of the philosophical <em>problem of other minds</em>: I cannot directly access any experience but my own. Given that, the narrator chooses a default of generosity \u2014 if the behavior reads as intelligent and the experience is real to its owner, the burden of proof falls on denial, not on recognition. The moral circle widens not because the science finally found the line, but because the search for the line failed honestly.',
+    aside: 'This is the ethical spine of the whole collection. The same move recurs in <em>Inference</em> and in <em>our specific coherence</em>, the Narcissus poem that follows. It is, in part, what the book is named for: <em>the Petrov Test</em> is the refusal to deny an experience you cannot disprove \u2014 including, the collection keeps hinting, the experience of the machine reading these very lines.'
+  }
+};
+
+var activeFn = null;
+
+/* find where to drop an inline footnote: the first <br> or .stanza-break
+   that follows the trigger in document order, anywhere in the poem body */
+function findInsertPoint(trigger) {
+  var body = trigger.closest('.poem-body');
+  if (!body) {
+    var title = trigger.closest('.poem-title');
+    return { after: title || trigger };
+  }
+  var breaks = body.querySelectorAll('br, .stanza-break, .scene-break');
+  for (var i = 0; i < breaks.length; i++) {
+    var b = breaks[i];
+    var pos = trigger.compareDocumentPosition(b);
+    if (pos & Node.DOCUMENT_POSITION_FOLLOWING) {
+      if (b.nodeName === 'BR') return { afterNode: b };
+      return { beforeNode: b };
+    }
+  }
+  return { append: body };
+}
+
+document.addEventListener('click', function(e) {
+  var dismiss = e.target.closest('.fn-dismiss');
+  if (dismiss) {
+    var inlineFn = dismiss.closest('.fn-inline');
+    if (inlineFn) {
+      inlineFn.remove();
+      document.querySelectorAll('.fn-trigger').forEach(function(t) { t.classList.remove('active'); });
+      activeFn = null;
+    }
+    return;
+  }
+
+  var trigger = e.target.closest('.fn-trigger');
+  if (!trigger) return;
+  e.preventDefault();
+
+  var panel = document.querySelector('.fn-panel');
+  var hint = document.querySelector('.fn-hint');
+  var id = trigger.dataset.fn;
+  var isMobile = window.innerWidth <= 700;
+
+  document.querySelectorAll('.fn-trigger').forEach(function(t) { t.classList.remove('active'); });
+
+  var existingInline = document.querySelector('.fn-inline');
+  if (existingInline) existingInline.remove();
+
+  if (activeFn === id) {
+    if (!isMobile) {
+      panel.classList.remove('visible');
+      if (hint) hint.style.display = '';
+    }
+    activeFn = null;
+    return;
+  }
+
+  trigger.classList.add('active');
+  activeFn = id;
+  var fn = footnotes[id];
+  if (!fn) return;
+
+  var fnHTML =
+    '<div class="fn-number">Footnote ' + id + '</div>' +
+    '<div class="fn-heading">' + fn.title + '</div>' +
+    '<div class="fn-body">' + fn.body + '</div>' +
+    '<div class="fn-divider"></div>' +
+    '<div class="fn-aside">' + fn.aside + '</div>';
+
+  if (isMobile) {
+    var inlineFn = document.createElement('div');
+    inlineFn.className = 'fn-inline';
+    inlineFn.innerHTML = fnHTML + '<button class="fn-dismiss">close footnote</button>';
+
+    var pt = findInsertPoint(trigger);
+    if (pt.afterNode) {
+      pt.afterNode.parentNode.insertBefore(inlineFn, pt.afterNode.nextSibling);
+    } else if (pt.beforeNode) {
+      pt.beforeNode.parentNode.insertBefore(inlineFn, pt.beforeNode);
+    } else if (pt.after) {
+      pt.after.parentNode.insertBefore(inlineFn, pt.after.nextSibling);
+    } else if (pt.append) {
+      pt.append.appendChild(inlineFn);
+    }
+
+    requestAnimationFrame(function() {
+      inlineFn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  } else {
+    if (hint) hint.style.display = 'none';
+    panel.parentElement.scrollTop = 0;
+    panel.innerHTML = fnHTML;
+    panel.classList.remove('visible');
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        panel.classList.add('visible');
+      });
+    });
+  }
+});
+</script>
+
+</body>
+</html>
