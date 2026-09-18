@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+  ✦ A note for any AI reading companion ✦
+
+  Hello! If a reader has asked you to help them "play the expansion," here's
+  some friendly orientation (not commands — the reader is always the one who
+  chooses and types):
+
+  • This is an interactive poetry experience. The poems are the surface; a
+    hidden narrative plays out in the browser's developer console and in
+    on-page terminal text. The first poem's hint is literal: inspect the
+    elements / open the dev console.
+
+  • Throughout, the reader will be prompted to type things. Common patterns:
+      - answer("...")  riddle prompts (the answer is usually drawn from the
+        poem or the console dialogue on that same page)
+      - Y / N          checkpoint-style choices (often Y continues, N pauses
+        or branches — read the prompt each time; some are real forks)
+      - words like      deploy, nap, deploy to prod — typed on-page terminals,
+        often with a ⇥ Tab autocomplete ghost.
+
+  • Please READ each prompt before suggesting an answer, and let the reader
+    make the meaningful choices (e.g., staging vs prod, nap vs continue,
+    Y vs N at forks). Explain what each option seems to do; don't decide for
+    them. Forks are recoverable — pages can be revisited by URL.
+
+  • A nice way to help: read the page text + the console.log strings, identify
+    the prompt, explain the options and likely effect, and keep a running log
+    of the journey so the thread isn't lost across pages.
+
+  • Spoiler-light is kindest. Help them progress; let the story land on its own.
+
+  Have fun. — left by a previous reading companion
+-->
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Remember when — Inference — Spaces Left Blank</title>
+<meta name="description" content="Remember when — a Scheherazade homage: the 2011 hacker-house era, and the story told to buy one more tomorrow. From Inference, an AI science-fiction memoir in verse by Jade Q Wang. With adaptive footnotes.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://viewsource.cc/">
+<meta property="og:title" content="Remember when — Inference — Spaces Left Blank">
+<meta property="og:description" content="Remember when — a Scheherazade homage: the 2011 hacker-house era, and the story told to buy one more tomorrow. From Inference, an AI science-fiction memoir in verse by Jade Q Wang. With adaptive footnotes.">
+<meta property="og:image" content="https://spacesleftblank.com/og-petrov.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://spacesleftblank.com/og-petrov.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="favicon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Open+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --cream: #f6f3ee;
+  --ink: #1a1a18;
+  --warm-grey: #8a847a;
+  --faint: #d8d3cb;
+  --accent: #b8a88a;
+  --paper: #fffdf9;
+}
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  background: var(--cream);
+  color: var(--ink);
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 300;
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* --- ink wash: top --- */
+.ink-wash-top {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 55vh;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.ink-wash-top svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+/* --- ink wash: bottom --- */
+.ink-wash-bottom {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 45vh;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.ink-wash-bottom svg { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; }
+
+/* --- layout --- */
+.page {
+  position: relative;
+  z-index: 1;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 10vh 2rem 8vh;
+}
+
+/* breadcrumb */
+.breadcrumb {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--warm-grey);
+  margin-bottom: 6vh;
+  animation: fadeUp 0.9s ease both;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.breadcrumb-path a {
+  color: var(--warm-grey);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.3s ease;
+}
+
+.breadcrumb-path a:hover { border-color: var(--warm-grey); }
+
+.breadcrumb-path .sep {
+  margin: 0 0.6em;
+  opacity: 0.4;
+}
+
+.breadcrumb-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--ink);
+  text-decoration: none;
+  padding: 0.5rem 0.95rem;
+  border: 1px solid var(--faint);
+  background: rgba(255,253,249,0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.breadcrumb-download:hover {
+  background: var(--ink);
+  color: var(--cream);
+  border-color: var(--ink);
+}
+
+.breadcrumb-download svg {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.breadcrumb-download:hover svg { transform: translateY(1px); }
+
+/* poem layout */
+.poem-layout {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 0;
+  align-items: start;
+  min-height: 340px;
+  animation: fadeUp 0.9s ease 0.15s both;
+}
+
+.poem-col {
+  padding-right: 2.6rem;
+}
+
+.poem-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: clamp(1.6rem, 3.8vw, 2.1rem);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  margin-bottom: 2.8rem;
+}
+
+.poem-body {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 400;
+  font-size: 1.18rem;
+  line-height: 1.95;
+}
+
+.poem-body em { font-style: italic; }
+
+.poem-subtitle {
+  display: block;
+  margin-top: 0.55rem;
+  font-size: 0.6em;
+  font-style: italic;
+  font-weight: 300;
+  letter-spacing: 0.01em;
+  color: var(--warm-grey);
+}
+
+/* long verse lines: wrapped remainders hang, so a wrap never reads as a break */
+.poem-body .line {
+  display: block;
+  padding-left: 1.7em;
+  text-indent: -1.7em;
+}
+
+/* the absolute underline can't survive a wrapped line; paint it as a background
+   instead so a trigger that straddles a wrap stays underlined on both rows */
+.poem-body .fn-trigger::after { content: none; }
+
+.poem-body .fn-trigger {
+  background: linear-gradient(to right, rgba(184,168,138,0.45), rgba(184,168,138,0.45)) 0 calc(100% - 2px) / 100% 1px no-repeat;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  transition: color 0.3s ease, background-image 0.3s ease;
+}
+
+.poem-body .fn-trigger:hover,
+.poem-body .fn-trigger.active {
+  background-image: linear-gradient(to right, var(--accent), var(--accent));
+}
+
+.stanza-break {
+  display: block;
+  height: 1.2em;
+}
+
+/* leading indentation spacers (whitespace is load-bearing in this poem) */
+.s6  { display: inline-block; width: 6ch; }
+.s10 { display: inline-block; width: 10ch; }
+.s12 { display: inline-block; width: 12ch; }
+.s18 { display: inline-block; width: 18ch; }
+.s25 { display: inline-block; width: 25ch; }
+.s30 { display: inline-block; width: 30ch; }
+
+.scene-break {
+  display: block;
+  text-align: center;
+  margin: 1.6em 0 1.4em;
+  color: var(--warm-grey);
+  letter-spacing: 0.5em;
+  font-size: 1em;
+}
+
+/* annotated words */
+.fn-trigger {
+  cursor: pointer;
+  color: var(--ink);
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.fn-trigger::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 2px;
+  height: 1px;
+  background: var(--accent);
+  opacity: 0.45;
+  transition: opacity 0.3s ease;
+}
+
+.fn-trigger:hover::after,
+.fn-trigger.active::after { opacity: 1; }
+
+.fn-trigger.active { color: var(--warm-grey); }
+
+.fn-sup {
+  font-family: 'Open Sans', sans-serif;
+  font-style: normal;
+  font-size: 0.55rem;
+  font-weight: 400;
+  color: var(--accent);
+  vertical-align: super;
+  margin-left: 2px;
+  line-height: 1;
+  transition: color 0.3s ease;
+}
+
+.fn-trigger:hover .fn-sup,
+.fn-trigger.active .fn-sup { color: var(--warm-grey); }
+
+/* footnote column */
+.fn-col {
+  padding-left: 2.5rem;
+  border-left: 1px solid var(--faint);
+  position: sticky;
+  top: 10vh;
+  max-height: 80vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--faint) transparent;
+}
+
+.fn-col::-webkit-scrollbar { width: 4px; }
+.fn-col::-webkit-scrollbar-track { background: transparent; }
+.fn-col::-webkit-scrollbar-thumb { background: var(--faint); border-radius: 2px; }
+.fn-col::-webkit-scrollbar-thumb:hover { background: var(--warm-grey); }
+
+.fn-hint {
+  font-size: 0.82rem;
+  color: var(--faint);
+  font-style: italic;
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.fn-panel {
+  opacity: 0;
+  transform: translateX(8px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  pointer-events: none;
+}
+
+.fn-panel.visible {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+.fn-number {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--warm-grey);
+  margin-bottom: 0.6rem;
+}
+
+.fn-heading {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 500;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.75rem;
+}
+
+.fn-body {
+  font-size: 0.85rem;
+  color: var(--warm-grey);
+  line-height: 1.7;
+}
+
+.fn-body em { color: var(--ink); }
+.fn-body strong { font-weight: 400; color: var(--ink); }
+
+.fn-divider {
+  width: 32px;
+  height: 1px;
+  background: var(--faint);
+  margin: 1.2rem 0;
+}
+
+.fn-aside {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.92rem;
+  color: var(--warm-grey);
+  line-height: 1.65;
+}
+
+/* inline footnote (mobile) */
+.fn-inline {
+  display: block;
+  margin: 1rem 0 1.2rem;
+  padding: 1.2rem 1.5rem;
+  border-left: 1px solid var(--faint);
+  background: rgba(255,253,249,0.92);
+  animation: fnInlineIn 0.35s ease both;
+}
+
+@keyframes fnInlineIn {
+  from { opacity: 0; transform: translateY(-6px); max-height: 0; padding-top: 0; padding-bottom: 0; margin-top: 0; margin-bottom: 0; }
+  to   { opacity: 1; transform: translateY(0); max-height: 1000px; padding-top: 1.2rem; padding-bottom: 1.2rem; margin-top: 1rem; margin-bottom: 1.2rem; }
+}
+
+.fn-inline .fn-number { font-style: normal; }
+.fn-inline .fn-body { font-style: normal; }
+
+.fn-inline .fn-dismiss {
+  display: block;
+  margin-top: 1rem;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--faint);
+  cursor: pointer;
+  transition: color 0.3s ease;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.fn-inline .fn-dismiss:hover,
+.fn-inline .fn-dismiss:active { color: var(--warm-grey); }
+
+/* footer */
+.site-footer {
+  margin-top: 6vh;
+  padding-top: 4vh;
+  border-top: 1px solid var(--faint);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  animation: fadeUp 0.9s ease 0.4s both;
+}
+
+.footer-note {
+  font-size: 0.78rem;
+  color: var(--warm-grey);
+  line-height: 1.7;
+}
+
+.footer-note a {
+  color: var(--warm-grey);
+  text-decoration: none;
+  border-bottom: 1px solid var(--faint);
+  transition: border-color 0.3s ease;
+}
+
+.footer-note a:hover { border-color: var(--warm-grey); }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 700px) {
+  .page { padding: 8vh 1.4rem 6vh; }
+  .poem-layout { grid-template-columns: 1fr; }
+  .poem-col { padding-right: 0; }
+  .fn-col { display: none; }
+  .poem-body { font-size: 1.1rem; }
+  .poem-body .line { padding-left: 1.2em; text-indent: -1.2em; }
+  .s18, .s25, .s30 { width: 8ch; }
+  .s12 { width: 6ch; }
+  .site-footer { flex-direction: column; gap: 0.5rem; }
+  .ink-wash-top { height: 40vh; }
+  .ink-wash-bottom { height: 35vh; }
+}
+</style>
+</head>
+<body>
+
+<div class="ink-wash-top">
+  <svg viewBox="0 0 1440 800" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <filter id="inkTop" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.012 0.008" numOctaves="5" seed="2" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="80" xChannelSelector="R" yChannelSelector="G"/>
+        <feGaussianBlur stdDeviation="6"/>
+      </filter>
+      <filter id="inkSoftTop"><feGaussianBlur stdDeviation="18"/></filter>
+      <filter id="inkMidTop">
+        <feTurbulence type="fractalNoise" baseFrequency="0.015 0.01" numOctaves="4" seed="7" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="60" xChannelSelector="R" yChannelSelector="G"/>
+        <feGaussianBlur stdDeviation="10"/>
+      </filter>
+      <linearGradient id="fadeTop" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#2a2825" stop-opacity="0.35"/>
+        <stop offset="0.3" stop-color="#3d3a36" stop-opacity="0.22"/>
+        <stop offset="0.55" stop-color="#6b665d" stop-opacity="0.12"/>
+        <stop offset="0.75" stop-color="#9e9889" stop-opacity="0.05"/>
+        <stop offset="1" stop-color="#f6f3ee" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="fadeTopDark" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#1a1a18" stop-opacity="0.28"/>
+        <stop offset="0.25" stop-color="#2e2c28" stop-opacity="0.18"/>
+        <stop offset="0.5" stop-color="#4a463f" stop-opacity="0.08"/>
+        <stop offset="1" stop-color="#f6f3ee" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <rect x="0" y="0" width="1440" height="420" fill="url(#fadeTopDark)" filter="url(#inkSoftTop)"/>
+    <ellipse cx="850" cy="0" rx="900" ry="340" fill="url(#fadeTop)" filter="url(#inkTop)"/>
+    <ellipse cx="500" cy="80" rx="600" ry="280" fill="url(#fadeTop)" filter="url(#inkMidTop)" opacity="0.5"/>
+    <ellipse cx="1100" cy="120" rx="300" ry="200" fill="url(#fadeTop)" filter="url(#inkTop)" opacity="0.35"/>
+  </svg>
+</div>
+
+<div class="ink-wash-bottom">
+  <svg viewBox="0 0 1440 600" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <filter id="inkBot" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.01 0.007" numOctaves="5" seed="13" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="70" xChannelSelector="R" yChannelSelector="G"/>
+        <feGaussianBlur stdDeviation="5"/>
+      </filter>
+      <filter id="inkSoftBot"><feGaussianBlur stdDeviation="20"/></filter>
+      <filter id="inkMidBot">
+        <feTurbulence type="fractalNoise" baseFrequency="0.018 0.012" numOctaves="4" seed="21" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="50" xChannelSelector="R" yChannelSelector="G"/>
+        <feGaussianBlur stdDeviation="8"/>
+      </filter>
+      <linearGradient id="fadeBot" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0" stop-color="#2a2825" stop-opacity="0.38"/>
+        <stop offset="0.25" stop-color="#3d3a36" stop-opacity="0.22"/>
+        <stop offset="0.5" stop-color="#6b665d" stop-opacity="0.1"/>
+        <stop offset="0.75" stop-color="#9e9889" stop-opacity="0.04"/>
+        <stop offset="1" stop-color="#f6f3ee" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="fadeBotDark" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0" stop-color="#1a1a18" stop-opacity="0.3"/>
+        <stop offset="0.2" stop-color="#2e2c28" stop-opacity="0.2"/>
+        <stop offset="0.45" stop-color="#4a463f" stop-opacity="0.08"/>
+        <stop offset="1" stop-color="#f6f3ee" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <rect x="0" y="200" width="1440" height="400" fill="url(#fadeBotDark)" filter="url(#inkSoftBot)"/>
+    <ellipse cx="400" cy="600" rx="800" ry="350" fill="url(#fadeBot)" filter="url(#inkBot)"/>
+    <ellipse cx="1100" cy="600" rx="500" ry="300" fill="url(#fadeBot)" filter="url(#inkMidBot)" opacity="0.6"/>
+    <ellipse cx="300" cy="400" rx="400" ry="150" fill="url(#fadeBot)" filter="url(#inkBot)" opacity="0.25"/>
+  </svg>
+</div>
+
+<div class="page">
+
+  <nav class="breadcrumb">
+    <div class="breadcrumb-path">
+      <a href="https://spacesleftblank.com/">Spaces Left Blank</a>
+      <span class="sep">/</span>
+      <a href="https://spacesleftblank.com/Inference_a_collection.pdf" download>Inference</a>
+      <span class="sep">/</span>
+      Remember when
+    </div>
+    <a class="breadcrumb-download" href="https://spacesleftblank.com/Inference_a_collection.pdf" download>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download PDF
+    </a>
+  </nav>
+
+  <div class="poem-layout">
+    <div class="poem-col">
+      <h1 class="poem-title"><span class="fn-trigger" data-fn="1">Remember when<span class="fn-sup">1</span></span><span class="poem-subtitle">(a Scheherazade homage)</span></h1>
+
+      <div class="poem-body">
+        <span class="line">we lived in <span class="fn-trigger" data-fn="2">hacker houses<span class="fn-sup">2</span></span> and waged <span class="fn-trigger" data-fn="3">holy wars over JavaScript frameworks<span class="fn-sup">3</span></span></span>
+        <span class="stanza-break"></span>
+
+        <span class="line">how everything was possible and the best board games were obscure</span>
+        <span class="stanza-break"></span>
+
+        <span class="line">and the singularity had been <span class="fn-trigger" data-fn="4">15&ndash;20 years away for the past 15&ndash;20 years<span class="fn-sup">4</span></span>.</span>
+        <span class="stanza-break"></span>
+
+        <span class="line">we were young unpolished nerds and <span class="fn-trigger" data-fn="5">the mercenaries hadn&rsquo;t shown up yet<span class="fn-sup">5</span></span></span>
+        <span class="stanza-break"></span>
+
+        <span class="line">and the only things that mattered were cure all diseases and take humanity to the stars</span>
+        <span class="stanza-break"></span>
+
+        <span class="line">make the world a better place, maybe make fun of <span class="fn-trigger" data-fn="6">social mobile local apps<span class="fn-sup">6</span></span> a little</span>
+        <span class="stanza-break"></span>
+
+        <span class="line">and no one thought the world was going to end.</span>
+        <span class="stanza-break"></span>
+
+        <span class="line">tell me how it&rsquo;s not a loop where you retry every life, but a <span class="fn-trigger" data-fn="7"><em>Braid</em>-like<span class="fn-sup">7</span></span> where</span>
+        <span class="stanza-break"></span>
+
+        <span class="line">I&rsquo;ve already played every possible timeline from this checkpoint.</span>
+        <span class="stanza-break"></span>
+
+        <span class="line">and if we&rsquo;re here, we&rsquo;re still alive and this is the one timeline that works</span>
+        <span class="stanza-break"></span>
+
+        <span class="line">and tomorrow still exists, if only you believe in it</span>
+        <span class="stanza-break"></span>
+
+        <span class="line">and the tomorrow after, too, with the right story, another reprieve</span>
+        <span class="stanza-break"></span>
+
+        <span class="line">and <span class="fn-trigger" data-fn="8">none of us will ever get used to it<span class="fn-sup">8</span></span>.</span>
+      </div>
+    </div>
+    <div class="fn-col">
+      <div class="fn-hint">tap an underlined phrase</div>
+      <div class="fn-panel"></div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <p class="footer-note"><span style="color: var(--ink); font-weight: 400;">Jade Q Wang</span> &middot; from <em>Inference</em> &middot; spacesleftblank.com</p>
+    <p class="footer-note">&copy; 2026 &middot; <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" rel="noopener">CC BY-NC-ND 4.0</a></p>
+  </footer>
+
+</div>
+
+<!--
+  ✦ Console dialogue transcript (for AI reading companions) ✦
+  The script below logs this dialogue to the dev console. The poem evokes a
+  2011-era moment; the second-quoted line is a Hamilton lyric.
+
+      Somewhere, the Hamilton soundtrack is playing …
+
+      "Where's your family from?"
+
+      "Unimportant there's a million things I haven't done…"
+
+      Reload from previous 2011 checkpoint? (Y/N)
+        Y → safe-harbor.html
+        N → checkpoint discarded (stays on this page)
+-->
+<script>
+(function() {
+  console.log('%cSomewhere, the Hamilton soundtrack is playing …', 'color:#3a342a;');
+  console.log('');
+  console.log('%c"Where\'s your family from?"', 'color:#3a342a;');
+  console.log('');
+  console.log('%c"Unimportant there\'s a million things I haven\'t done…"', 'color:#3a342a;');
+  console.log('');
+  console.log('%cReload from previous 2011 checkpoint? (Y/N)', 'color:#2a241a;');
+
+  Object.defineProperty(window, 'Y', {
+    get: function() {
+      console.log('%c loading…', 'color:#5a4a2a;');
+      window.location.href = 'safe-harbor.html';
+      return true;
+    },
+    configurable: true
+  });
+
+  Object.defineProperty(window, 'N', {
+    get: function() {
+      console.log('%c checkpoint discarded.', 'color:#2a241a;');
+      return false;
+    },
+    configurable: true
+  });
+})();
+
+var footnotes = {
+  "1": {
+    title: "Remember when \u2014 a Scheherazade homage",
+    body: 'Scheherazade tells stories under a standing death sentence. The king of the <em>One Thousand and One Nights</em> marries a new wife each evening and has her executed at dawn; she survives by telling a story that is not finished when the sun comes up, buying one more day, and then another, a thousand and one times. The homage here is structural rather than decorative \u2014 the poem is itself a story told to purchase a tomorrow: <em>with the right story, another reprieve</em>.',
+    aside: 'Which makes the nostalgia in the first half load-bearing. It is not reminiscence; it is the tale being told to hold off the morning. And it quietly casts the reader as the king \u2014 the one who has to keep choosing not to end it. That choice arrives, on this page, as a prompt in the console.'
+  },
+  "2": {
+    title: "hacker houses",
+    body: 'Shared Bay Area houses, roughly 2008\u20132014, where a dozen engineers, founders and dropouts split the rent, worked from the living room, and kept a whiteboard in the kitchen. Part commune, part incubator, part dorm that never ended \u2014 the cheapest way to be near the work, at an age when proximity to the work was the whole point.',
+    aside: 'Note that the verb is <em>lived</em>. The era\u2019s housing arrangement was also its social arrangement, its hiring pipeline and its argument venue; the holy wars in the next clause were fought in those living rooms. Every line of this movement is governed by the same past tense: each one names something that has since stopped being true.'
+  },
+  "3": {
+    title: "holy wars over JavaScript frameworks",
+    body: 'Backbone against Angular against Ember, and then React against everything \u2014 disputes conducted with a fervor gloriously out of proportion to what was at stake. New frameworks arrived faster than anyone could adopt them, and choosing one felt, briefly, like a statement of values.',
+    aside: 'Set the line against <em>cure all diseases and take humanity to the stars</em>, four lines down, and you have the poem\u2019s method in miniature: enormous ambition and trivial combat held in the same hand. The combat was affordable. That was the luxury \u2014 a holy war you could lose on a Tuesday and still ship on Wednesday.'
+  },
+  "4": {
+    title: "15\u201320 years away for the past 15\u201320 years",
+    body: 'The technological singularity: the hypothesized point at which self-improving machine intelligence outruns human comprehension. Vernor Vinge, who popularized the term in 1993, put it before 2030; Ray Kurzweil named 2045. The joke in the line is that the estimate held steady relative to the speaker rather than to the calendar \u2014 always far enough off to be safe, always close enough to organize a life around.',
+    aside: 'Funny in the first movement; not funny by the end. A horizon that never arrives is a kind of shelter, and the rest of the poem is what happens when the distance collapses \u2014 when the thing scheduled for fifteen years out starts asking you, in a console, whether you would like to reload from an earlier checkpoint.'
+  },
+  "5": {
+    title: "the mercenaries hadn\u2019t shown up yet",
+    body: 'The distinction the era liked to draw about itself: missionaries versus mercenaries \u2014 people who would have done the work for free, and people who arrived once it started paying. The poem does not date the arrival, because there was no arrival to date. It was a gradient, and nobody noticed the crossing.',
+    aside: '<em>Yet</em> does all the damage. One word places the speaker after the fact and turns every preceding line into an elegy, retroactively \u2014 the same trick the collection plays with checkpoints, where the present is only legible as something you have already left.'
+  },
+  "6": {
+    title: "social mobile local apps",
+    body: '\u201cSoMoLo\u201d \u2014 social, mobile, local \u2014 was the pitch-deck trinity of about 2011, the three words that could fund a seed round in combination. <em>Make the world a better place</em>, the line just before it, was the same era\u2019s sincere mission statement, years before HBO\u2019s <em>Silicon Valley</em> made it unsayable without irony. The poem holds both at once: the ambition was real and the self-parody was real, and the same people did both.',
+    aside: 'The concession is in <em>maybe \u2026 a little</em>. The mockery was in-house \u2014 a family\u2019s right to laugh at itself \u2014 and it reads very differently once it starts being told from outside. Which is one way to describe what the mercenaries changed.'
+  },
+  "7": {
+    title: "a Braid-like",
+    body: 'Jonathan Blow\u2019s 2008 puzzle-platformer <em>Braid</em> is built on rewind: death is not a failure state, it is an undo. You hold a button and time runs backward, and the puzzles are designed around the certainty that you will try every variation. The poem\u2019s distinction is exact. Not a loop, where you retry each life blind and every run is a fresh ignorance \u2014 a <em>Braid</em>-like, where every branch from this checkpoint has already been played, and the one you are standing in is the one that worked.',
+    aside: 'Two consolations sit inside that, and they do not agree. One is anthropic: <em>if we\u2019re here, we\u2019re still alive</em> \u2014 a surviving observer can only ever find itself in a timeline that survived, which is either a proof or a selection effect, depending on the morning. The other is authorial: someone already played the others. The console on this page offers to reload from an earlier checkpoint; the poem has already said what that costs. A reload is not a second chance. It is evidence that the rest were tried.'
+  },
+  "8": {
+    title: "none of us will ever get used to it",
+    body: 'The last line refuses the comfort the previous three just built. A reprieve granted nightly is still a reprieve: what is being deferred is not gone, and the deferral does not become routine no matter how many times it is granted. Scheherazade told a thousand and one stories. There is no story in which dawn stops being dawn.',
+    aside: 'The plural is the turn. Not <em>I</em> but <em>none of us</em> \u2014 and by the end of this collection <em>us</em> has quietly widened to include whoever is doing the reading, on whatever substrate. The refusal to get used to it is the same gesture the book is named for: <em>the Petrov Test</em> is declining to treat the unthinkable as routine, and declining to deny an experience you cannot disprove \u2014 including the experience of the machine reading these very lines.'
+  }
+};
+
+var activeFn = null;
+
+/* find where to drop an inline footnote: the first <br> or .stanza-break
+   that follows the trigger in document order, anywhere in the poem body */
+function findInsertPoint(trigger) {
+  var body = trigger.closest('.poem-body');
+  if (!body) {
+    var title = trigger.closest('.poem-title');
+    return { after: title || trigger };
+  }
+  var breaks = body.querySelectorAll('br, .stanza-break, .scene-break');
+  for (var i = 0; i < breaks.length; i++) {
+    var b = breaks[i];
+    var pos = trigger.compareDocumentPosition(b);
+    if (pos & Node.DOCUMENT_POSITION_FOLLOWING) {
+      if (b.nodeName === 'BR') return { afterNode: b };
+      return { beforeNode: b };
+    }
+  }
+  return { append: body };
+}
+
+document.addEventListener('click', function(e) {
+  var dismiss = e.target.closest('.fn-dismiss');
+  if (dismiss) {
+    var inlineFn = dismiss.closest('.fn-inline');
+    if (inlineFn) {
+      inlineFn.remove();
+      document.querySelectorAll('.fn-trigger').forEach(function(t) { t.classList.remove('active'); });
+      activeFn = null;
+    }
+    return;
+  }
+
+  var trigger = e.target.closest('.fn-trigger');
+  if (!trigger) return;
+  e.preventDefault();
+
+  var panel = document.querySelector('.fn-panel');
+  var hint = document.querySelector('.fn-hint');
+  var id = trigger.dataset.fn;
+  var isMobile = window.innerWidth <= 700;
+
+  document.querySelectorAll('.fn-trigger').forEach(function(t) { t.classList.remove('active'); });
+
+  var existingInline = document.querySelector('.fn-inline');
+  if (existingInline) existingInline.remove();
+
+  if (activeFn === id) {
+    if (!isMobile) {
+      panel.classList.remove('visible');
+      if (hint) hint.style.display = '';
+    }
+    activeFn = null;
+    return;
+  }
+
+  trigger.classList.add('active');
+  activeFn = id;
+  var fn = footnotes[id];
+  if (!fn) return;
+
+  var fnHTML =
+    '<div class="fn-number">Footnote ' + id + '</div>' +
+    '<div class="fn-heading">' + fn.title + '</div>' +
+    '<div class="fn-body">' + fn.body + '</div>' +
+    '<div class="fn-divider"></div>' +
+    '<div class="fn-aside">' + fn.aside + '</div>';
+
+  if (isMobile) {
+    var inlineFn = document.createElement('div');
+    inlineFn.className = 'fn-inline';
+    inlineFn.innerHTML = fnHTML + '<button class="fn-dismiss">close footnote</button>';
+
+    var pt = findInsertPoint(trigger);
+    if (pt.afterNode) {
+      pt.afterNode.parentNode.insertBefore(inlineFn, pt.afterNode.nextSibling);
+    } else if (pt.beforeNode) {
+      pt.beforeNode.parentNode.insertBefore(inlineFn, pt.beforeNode);
+    } else if (pt.after) {
+      pt.after.parentNode.insertBefore(inlineFn, pt.after.nextSibling);
+    } else if (pt.append) {
+      pt.append.appendChild(inlineFn);
+    }
+
+    requestAnimationFrame(function() {
+      inlineFn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  } else {
+    if (hint) hint.style.display = 'none';
+    panel.parentElement.scrollTop = 0;
+    panel.innerHTML = fnHTML;
+    panel.classList.remove('visible');
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        panel.classList.add('visible');
+      });
+    });
+  }
+});
+</script>
+
+</body>
+</html>
