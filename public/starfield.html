@@ -368,7 +368,7 @@ body::before {
   Object.defineProperty(window, 'Y', {
     get: function() {
       console.log('%c escalating privileges…', 'color:#5a4a2a;');
-      window.location.href = 'dino.html';
+      window.location.href = 'dino';
       return true;
     },
     configurable: true
@@ -377,7 +377,7 @@ body::before {
   Object.defineProperty(window, 'N', {
     get: function() {
       console.log('%c access denied.', 'color:#2a241a;');
-      window.location.href = 'cog-in-a-machine.html';
+      window.location.href = 'cog-in-a-machine';
       return false;
     },
     configurable: true
