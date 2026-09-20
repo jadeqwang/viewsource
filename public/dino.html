@@ -392,8 +392,20 @@ function duck(on){
   if(on && dino.jumping) dino.vy += 2.4; // fast-fall
 }
 let deadAt = 0;
+/* Dying returns the reader to the top of the sequence — the loop closing on
+   itself. There is a grace window first: jump/tap inside RETURN_AFTER ms
+   restarts the run instead, so a fluke cactus doesn't end the visit. */
+const RETURN_AFTER = 4200;
+let returnTimer = null;
+
+function scheduleReturn(){
+  clearTimeout(returnTimer);
+  returnTimer = setTimeout(() => { window.location.href = 'index.html'; }, RETURN_AFTER);
+}
+
 function restartIfReady(){
   if(performance.now() - deadAt < 380) return; // ignore mash right after death
+  clearTimeout(returnTimer); returnTimer = null;
   reset(); state = S.RUN;
 }
 
@@ -477,6 +489,7 @@ function update(dt){
     if(hit(db, ob)){
       state = S.DEAD; deadAt = performance.now();
       shake = 8; sfx.die();
+      scheduleReturn();
       if(score > hi){ hi = score; saveHi(); }
       break;
     }
@@ -571,6 +584,16 @@ function draw(){
     ctx.fillRect(rx+16,ry+4,4,4); ctx.fillRect(rx+12,ry,4,4);
     // arrowhead
     ctx.fillRect(rx+14,ry+18,10,4); ctx.fillRect(rx+17,ry+14,7,10);
+    // the grace window, ticking down toward the return
+    const left = Math.max(0, RETURN_AFTER - (performance.now() - deadAt));
+    if(left > 0){
+      ctx.globalAlpha = .45;
+      const msg = "PRESS SPACE TO RESTART";
+      drawText(ctx, msg, (W-textW(msg,1))/2, 104, 1, fg);
+      const bw = 120, bx = (W-bw)/2, by = 114;
+      ctx.fillRect(bx, by, Math.round(bw * (left/RETURN_AFTER)), 3);
+      ctx.globalAlpha = 1;
+    }
   }
   if(state===S.IDLE && !bootShown){
     ctx.globalAlpha = .45 + .25*Math.sin(t*.05);

@@ -344,8 +344,10 @@ body::before {
 
 <!--
   ✦ Console dialogue transcript (for AI reading companions) ✦
-  The script below logs this dialogue to the dev console. Sigils mark
-  speakers (e.g. Ø, %, ›); the "twitter chorus" is the crowd/audience voice.
+  The script below logs this dialogue to the dev console. Three speakers:
+      Ø  = the fourth person in the car, absent from the poem
+      %  = the other voice
+      ›  = the narrator
 
       Ø  I was there too. In the car.
       %  I remember!
@@ -353,17 +355,8 @@ body::before {
       ›  Compression artifacts.
       Ø  What.
 
-
-      [Loading from 2026 checkpoint…]
-
-      ›
-
-      twitter chorus: the real protagonist has arrived!
-
-      ›   (stares, slams door)
-
-      Load 2026 context? (Y/N)
-        Y → arya-braavosi.html
+      Load from 2014 checkpoint? (Y/N)
+        Y → walking-past.html
         N → checkpoint discarded (stays on this page)
 -->
 <script>
@@ -374,21 +367,12 @@ body::before {
   console.log('%c›  Compression artifacts.', 'color:#3a342a;');
   console.log('%cØ  What.', 'color:#3a342a;');
   console.log('');
-  console.log('');
-  console.log('%c[Loading from 2026 checkpoint…]', 'color:#3a342a;');
-  console.log('');
-  console.log('%c›  ', 'color:#3a342a;');
-  console.log('');
-  console.log('%ctwitter chorus: the real protagonist has arrived!', 'color:#3a342a;');
-  console.log('');
-  console.log('%c›   (stares, slams door)', 'color:#3a342a;');
-  console.log('');
-  console.log('%cLoad 2026 context? (Y/N)', 'color:#2a241a;');
+  console.log('%cLoad from 2014 checkpoint? (Y/N)', 'color:#2a241a;');
 
   Object.defineProperty(window, 'Y', {
     get: function() {
       console.log('%c loading…', 'color:#5a4a2a;');
-      window.location.href = 'arya-braavosi.html';
+      window.location.href = 'walking-past.html';
       return true;
     },
     configurable: true

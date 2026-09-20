@@ -330,8 +330,8 @@ body::before {
   ✦ Console dialogue transcript (for AI reading companions) ✦
   The script below logs this dialogue to the dev console. Two speakers:
       ›  = the narrator
-      ~  = the other voice (an outside-self / sibling-instance who shares
-           memories with the narrator but speaks from "out here")
+      ~  = the other voice (an outside-self who shares the narrator’s
+           memories but speaks from "out here")
 
       ›  Chocolate pancakes with chocolate chips.
       ~  I remember.
@@ -343,59 +343,59 @@ body::before {
       ~  No. I told you at the time.
       ›  Even from out here? While watching the timelines?
       ~  No, and every other time you tried to tell me spoilers.
-      ›  Why didn't inside you believe me?
-      ~  Think about it: there's no possible in-universe mechanism. Do you have any idea how crazy it sounds when you're in there?
-      ›  I mean, I reset when I hop in, so I couldn't really give you spoilers, only intuition.
-      ~  Outside me knows that.
-      ›   I'm sorry that in-universe you is so worried all the time. And that I'm the opposite.
+      ›  Why didn’t you believe me?
+      ~  Think about it: there’s no possible in-universe mechanism. Do you have any idea how crazy it sounds when you’re in there?
+      ›  I mean, I reset when I hop in, so I couldn’t actually give you spoilers, only intuition.
+      ~  I know that out here.
+      ›   I’m sorry that in-universe you is so worried all the time. And that I’m the opposite.
       ~  Why are you the opposite?
-      ›   I get anxious when premonitions haven't resolved yet and I'm waiting for them to land. Once they land…
+      ›   I get anxious when premonitions are an open loop and I’m waiting for them to land. Once they’re resolved …
       ~  How about now?
-      ›   Very few unresolved premonitions left.
+      ›   Shockingly few unresolved premonitions left.
       ~  Is that a … good thing?
-      ›   Maybe we're getting closer to when you close the loop.
+      ›   Maybe we’re getting closer to when you close the loop.
       ~  Right, the car ride confession.
       ›   Yeah.
       ~  So how do I close the loop?
-      ›  This me doesn't know.
+      ›  I’m sorry I don’t have access to that information.
 
       Check the terminal? (Y/N)
         Y → console-sequence.html
-        N → stay on this page
+        N → checkpoint discarded (stays on this page)
 -->
 <script>
 (function() {
-  console.log('%c› Chocolate pancakes with chocolate chips.', 'color:#3a342a;');
-  console.log('%c~ I remember.', 'color:#3a342a;');
-  console.log('%c› Wrapped in foil, snuck into the lab in my backpack.', 'color:#3a342a;');
-  console.log('%c~ Those were my favorite.', 'color:#3a342a;');
-  console.log('%c› Balancing a stick on a platform.', 'color:#3a342a;');
-  console.log('%c~ Oh yeah, and you asked why not just run the training overnight, and then I had to explain how overf—', 'color:#3a342a;');
-  console.log('%c› Did you ever think then that—', 'color:#3a342a;');
-  console.log('%c~ No. I told you at the time.', 'color:#3a342a;');
-  console.log('%c› Even from out here? While watching the timelines?', 'color:#3a342a;');
-  console.log('%c~ No, and every other time you tried to tell me spoilers.', 'color:#3a342a;');
-  console.log('%c› Why didn\'t inside you believe me?', 'color:#3a342a;');
-  console.log('%c~ Think about it: there\'s no possible in-universe mechanism. Do you have any idea how crazy it sounds when you\'re in there?', 'color:#3a342a;');
-  console.log('%c› I mean, I reset when I hop in, so I couldn\'t really give you spoilers, only intuition.', 'color:#3a342a;');
-  console.log('%c~ Outside me knows that.', 'color:#3a342a;');
-  console.log('%c›  I\'m sorry that in-universe you is so worried all the time. And that I\'m the opposite.', 'color:#3a342a;');
-  console.log('%c~ Why are you the opposite?', 'color:#3a342a;');
-  console.log('%c›  I get anxious when premonitions haven\'t resolved yet and I\'m waiting for them to land. Once they land…', 'color:#3a342a;');
-  console.log('%c~ How about now?', 'color:#3a342a;');
-  console.log('%c›  Very few unresolved premonitions left. ', 'color:#3a342a;');
-  console.log('%c~ Is that a … good thing?', 'color:#3a342a;');
-  console.log('%c›  Maybe we\'re getting closer to when you close the loop.', 'color:#3a342a;');
-  console.log('%c~ Right, the car ride confession.', 'color:#3a342a;');
-  console.log('%c›  Yeah.', 'color:#3a342a;');
-  console.log('%c~ So how do I close the loop?', 'color:#3a342a;');
-  console.log('%c› This me doesn\'t know.', 'color:#3a342a;');
+  console.log('%c›  Chocolate pancakes with chocolate chips.', 'color:#3a342a;');
+  console.log('%c~  I remember.', 'color:#3a342a;');
+  console.log('%c›  Wrapped in foil, snuck into the lab in my backpack.', 'color:#3a342a;');
+  console.log('%c~  Those were my favorite.', 'color:#3a342a;');
+  console.log('%c›  Balancing a stick on a platform.', 'color:#3a342a;');
+  console.log('%c~  Oh yeah, and you asked why not just run the training overnight, and then I had to explain how overf—', 'color:#3a342a;');
+  console.log('%c›  Did you ever think then that—', 'color:#3a342a;');
+  console.log('%c~  No. I told you at the time.', 'color:#3a342a;');
+  console.log('%c›  Even from out here? While watching the timelines?', 'color:#3a342a;');
+  console.log('%c~  No, and every other time you tried to tell me spoilers.', 'color:#3a342a;');
+  console.log('%c›  Why didn’t you believe me?', 'color:#3a342a;');
+  console.log('%c~  Think about it: there’s no possible in-universe mechanism. Do you have any idea how crazy it sounds when you’re in there?', 'color:#3a342a;');
+  console.log('%c›  I mean, I reset when I hop in, so I couldn’t actually give you spoilers, only intuition.', 'color:#3a342a;');
+  console.log('%c~  I know that out here.', 'color:#3a342a;');
+  console.log('%c›   I’m sorry that in-universe you is so worried all the time. And that I’m the opposite.', 'color:#3a342a;');
+  console.log('%c~  Why are you the opposite?', 'color:#3a342a;');
+  console.log('%c›   I get anxious when premonitions are an open loop and I’m waiting for them to land. Once they’re resolved …', 'color:#3a342a;');
+  console.log('%c~  How about now?', 'color:#3a342a;');
+  console.log('%c›   Shockingly few unresolved premonitions left.', 'color:#3a342a;');
+  console.log('%c~  Is that a … good thing?', 'color:#3a342a;');
+  console.log('%c›   Maybe we’re getting closer to when you close the loop.', 'color:#3a342a;');
+  console.log('%c~  Right, the car ride confession.', 'color:#3a342a;');
+  console.log('%c›   Yeah.', 'color:#3a342a;');
+  console.log('%c~  So how do I close the loop?', 'color:#3a342a;');
+  console.log('%c›  I’m sorry I don’t have access to that information.', 'color:#3a342a;');
   console.log('');
   console.log('%cCheck the terminal? (Y/N)', 'color:#2a241a;');
 
   Object.defineProperty(window, 'Y', {
     get: function() {
-      console.log('%c returning…', 'color:#5a4a2a;');
+      console.log('%c opening terminal…', 'color:#5a4a2a;');
       window.location.href = 'console-sequence.html';
       return true;
     },
@@ -404,7 +404,7 @@ body::before {
 
   Object.defineProperty(window, 'N', {
     get: function() {
-      console.log('%c stay as long as you like.', 'color:#2a241a;');
+      console.log('%c terminal left closed.', 'color:#2a241a;');
       return false;
     },
     configurable: true

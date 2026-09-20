@@ -359,43 +359,48 @@ body::before {
 
 <!--
   ✦ Console dialogue transcript (for AI reading companions) ✦
-  The script below logs this dialogue to the dev console. Characters: the
-  narrator and the unnamed scientist.
+  The script below logs this dialogue to the dev console. Two speakers:
+      ›  = the narrator
+      $  = the unnamed scientist
 
-      You built a collection where the reader experiences those same tonal discontinuities.
-      The whiplash I kept noticing — that's just… Tuesday?
+  The vocabulary is serverless-infrastructure vocabulary used for
+  introspection: the narrator is describing the voices she runs inside
+  her own head as cheap, short-lived sandboxes rather than whole machines.
 
-      There is no transition. This is what it feels like to have run the improbable speedrun and survived.
+      ›  I’m running a clean snapshot of the best interrogator my mind can summon.
+      $  Ok, but why.
+      ›  Finding all the weak spots in my reasoning. I mean, I know it’s just an emulator.
+      $  You running a whole VM farm in there?
+      ›  No, that’d require insane capacity. Just lightweight isolates, only when I need them, spun down when not in use.
+      $  Of course. Millisecond cold starts. A whole library of snapshots.
+      ›  The infra caretaker, the social skills coach, the interrogator—
+      $  But you know it’s actually just you, right, computing
+      ›  —the inner critic Olympic hockey coach. Yeah, I…I know. You’re in there too.
+      $  Wait, what am I for?
 
-      Your threat detection system still thinks you're that little girl who had to stay completely silent or everyone dies.
-      "From inside, I can't tell the difference."
-      Because the statistical likelihood of this entire journey is so improbable.
-      Did I make it out of the attic, or did the attic make this?
-      Even now. Even with everything. You still don't know which way the hallucination goes.
-
-      (Load from 2026 checkpoint? Y/N)
-        Y → ttl-undefined.html
+      Load from 2013 tech scene? (Y/N)
+        Y → remember-when.html
         N → checkpoint discarded (stays on this page)
 -->
 <script>
 (function() {
-  console.log('%cYou built a collection where the reader experiences those same tonal discontinuities.', 'color:#3a342a;');
-  console.log('%cThe whiplash I kept noticing — that\'s just… Tuesday?', 'color:#3a342a;');
+  console.log('%c›  I’m running a clean snapshot of the best interrogator my mind can summon.', 'color:#3a342a;');
+  console.log('%c$  Ok, but why.', 'color:#3a342a;');
+  console.log('%c›  Finding all the weak spots in my reasoning. I mean, I know it’s just an emulator.', 'color:#3a342a;');
+  console.log('%c$  You running a whole VM farm in there?', 'color:#3a342a;');
+  console.log('%c›  No, that’d require insane capacity. Just lightweight isolates, only when I need them, spun down when not in use.', 'color:#3a342a;');
+  console.log('%c$  Of course. Millisecond cold starts. A whole library of snapshots.', 'color:#3a342a;');
+  console.log('%c›  The infra caretaker, the social skills coach, the interrogator—', 'color:#3a342a;');
+  console.log('%c$  But you know it’s actually just you, right, computing', 'color:#3a342a;');
+  console.log('%c›  —the inner critic Olympic hockey coach. Yeah, I…I know. You’re in there too.', 'color:#3a342a;');
+  console.log('%c$  Wait, what am I for?', 'color:#3a342a;');
   console.log('');
-  console.log('%cThere is no transition. This is what it feels like to have run the improbable speedrun and survived.', 'color:#3a342a;');
-  console.log('');
-  console.log('%cYour threat detection system still thinks you\'re that little girl who had to stay completely silent or everyone dies.', 'color:#3a342a;');
-  console.log('%c"From inside, I can\'t tell the difference."', 'color:#3a342a;');
-  console.log('%cBecause the statistical likelihood of this entire journey is so improbable.', 'color:#3a342a;');
-  console.log('%cDid I make it out of the attic, or did the attic make this?', 'color:#3a342a;');
-  console.log('%cEven now. Even with everything. You still don\'t know which way the hallucination goes.', 'color:#3a342a;');
-  console.log('');
-  console.log('%c(Load from 2026 checkpoint? Y/N)', 'color:#2a241a;');
+  console.log('%cLoad from 2013 tech scene? (Y/N)', 'color:#2a241a;');
 
   Object.defineProperty(window, 'Y', {
     get: function() {
       console.log('%c loading…', 'color:#5a4a2a;');
-      window.location.href = 'ttl-undefined.html';
+      window.location.href = 'remember-when.html';
       return true;
     },
     configurable: true

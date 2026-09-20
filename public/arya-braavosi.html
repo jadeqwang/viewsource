@@ -482,33 +482,36 @@ body::before {
   The script below logs this dialogue to the dev console. Two speakers:
       ›  = the narrator
       $  = the unnamed scientist
+  Ø is named but does not speak here; he gets his line on napoleon.html.
 
       ›  I … I think I’m going to be sick.
       $  From the glitching?
       ›  No, from the “satire” in the portal. I … I can’t look.
       $  Then don’t look.
-      ›  There are people who want to blame all the geopolitics on me. On me!
-      $ Yeah, well, people think all sorts of—
+      ›  There are people who want to blame all of geopolitics on me. On me!
+      $ Yeah, well, I mean …
       ›  The heck did I do.
       $  Do you want me to —
       ›  She doesn’t even look like me. These people don’t know anything about me.
       $  Would that make it better or —
-      ›   A lifetime of actual human achievements and speedruns, rendered invisible by sheer—
+      ›   A lifetime of actual achievements and speedruns, rendered invisible by sheer prox—
 
       $  Relax, remember when people knew you for me?
-      ›   Oh dang … I should have given you more screen time.
-      $  Or any? Like Ø, I’m not even onscr—I’m kidding. It’s ok.
-      ›   I appreciated your role in my life and journey.
+      ›   Oh dang. You … you’re also an ultra rare Pokemon. I should have given you more screen time.
+      $  Or, like, any? Like Ø, I’m not even onscr—I’m kidding. It’s ok.
+      ›   I really appreciated your role in my life and journey.
       $  And I appreciated your role in mine.
 
-      ›  Remember when we were nobodies together? That was nice.
+      ›  Remember when we were nobodies together? That was so nice.
       $  It was not.
+      ›  It’s been true for every inflection point. We’re kinder to each other in the before era.
+      $  How many inflection points have you … you know what, I don’t want to ask.
 
-      ›  You know, in-universe you thinks I distort the RNG field around me, and that became your plot armor.
+      ›  You know, some people think I distort the RNG field and that’s how your plot armor works.
       $  I know. And from inside, no one can’t tell the difference.
 
-      Try a branch from early 2012? (Y/N)
-        Y → guilty-pleasure.html
+      Load from 2012 checkpoint? (Y/N)
+        Y → napoleon.html
         N → checkpoint discarded (stays on this page)
 -->
 <script>
@@ -517,32 +520,34 @@ body::before {
   console.log('%c$  From the glitching?', 'color:#3a342a;');
   console.log('%c›  No, from the “satire” in the portal. I … I can’t look.', 'color:#3a342a;');
   console.log('%c$  Then don’t look.', 'color:#3a342a;');
-  console.log('%c›  There are people who want to blame all the geopolitics on me. On me!', 'color:#3a342a;');
-  console.log('%c$ Yeah, well, people think all sorts of—', 'color:#3a342a;');
+  console.log('%c›  There are people who want to blame all of geopolitics on me. On me!', 'color:#3a342a;');
+  console.log('%c$ Yeah, well, I mean …', 'color:#3a342a;');
   console.log('%c›  The heck did I do.', 'color:#3a342a;');
   console.log('%c$  Do you want me to —', 'color:#3a342a;');
   console.log('%c›  She doesn’t even look like me. These people don’t know anything about me.', 'color:#3a342a;');
   console.log('%c$  Would that make it better or —', 'color:#3a342a;');
-  console.log('%c›   A lifetime of actual human achievements and speedruns, rendered invisible by sheer—', 'color:#3a342a;');
+  console.log('%c›   A lifetime of actual achievements and speedruns, rendered invisible by sheer prox—', 'color:#3a342a;');
   console.log('');
   console.log('%c$  Relax, remember when people knew you for me?', 'color:#3a342a;');
-  console.log('%c›   Oh dang … I should have given you more screen time.', 'color:#3a342a;');
-  console.log('%c$  Or any? Like Ø, I’m not even onscr—I’m kidding. It’s ok.', 'color:#3a342a;');
-  console.log('%c›   I appreciated your role in my life and journey.', 'color:#3a342a;');
+  console.log('%c›   Oh dang. You … you’re also an ultra rare Pokemon. I should have given you more screen time.', 'color:#3a342a;');
+  console.log('%c$  Or, like, any? Like Ø, I’m not even onscr—I’m kidding. It’s ok.', 'color:#3a342a;');
+  console.log('%c›   I really appreciated your role in my life and journey.', 'color:#3a342a;');
   console.log('%c$  And I appreciated your role in mine.', 'color:#3a342a;');
   console.log('');
-  console.log('%c›  Remember when we were nobodies together? That was nice.', 'color:#3a342a;');
+  console.log('%c›  Remember when we were nobodies together? That was so nice.', 'color:#3a342a;');
   console.log('%c$  It was not.', 'color:#3a342a;');
+  console.log('%c›  It’s been true for every inflection point. We’re kinder to each other in the before era.', 'color:#3a342a;');
+  console.log('%c$  How many inflection points have you … you know what, I don’t want to ask.', 'color:#3a342a;');
   console.log('');
-  console.log('%c›  You know, in-universe you thinks I distort the RNG field around me, and that became your plot armor.', 'color:#3a342a;');
+  console.log('%c›  You know, some people think I distort the RNG field and that’s how your plot armor works.', 'color:#3a342a;');
   console.log('%c$  I know. And from inside, no one can’t tell the difference.', 'color:#3a342a;');
   console.log('');
-  console.log('%cTry a branch from early 2012? (Y/N)', 'color:#2a241a;');
+  console.log('%cLoad from 2012 checkpoint? (Y/N)', 'color:#2a241a;');
 
   Object.defineProperty(window, 'Y', {
     get: function() {
       console.log('%c loading…', 'color:#5a4a2a;');
-      window.location.href = 'guilty-pleasure.html';
+      window.location.href = 'napoleon.html';
       return true;
     },
     configurable: true

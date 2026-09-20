@@ -478,31 +478,35 @@ body::before {
 
       ›   Oh.
       %  What?
-      ›   It's the paradox.
+      ›   It’s the paradox.
       %  Explain.
-      ›   I haven't eaten since later this afternoon.
+      ›   I haven’t eaten since later this afternoon.
       %  Wait—
-      ›   There are timelines where I have made every possible choice, but this is the one that doesn't crash. All the other timelines got pruned.
+      ›   There are timelines where I have made every possible choice, and this is the one that doesn’t crash. I think we’re in a Braid-like.
+      %  How could you know? Do you have a memory?
+      ›   Just a working theory.
 
       Continue running simulation? (Y/N)
         Y → starfield.html
-        N → simulation paused (stays on this page)
+        N → checkpoint discarded (stays on this page)
 -->
 <script>
 (function() {
   console.log('%c›   Oh.', 'color:#3a342a;');
   console.log('%c%  What?', 'color:#3a342a;');
-  console.log('%c›   It\'s the paradox.', 'color:#3a342a;');
+  console.log('%c›   It’s the paradox.', 'color:#3a342a;');
   console.log('%c%  Explain.', 'color:#3a342a;');
-  console.log('%c›   I haven\'t eaten since later this afternoon.', 'color:#3a342a;');
+  console.log('%c›   I haven’t eaten since later this afternoon.', 'color:#3a342a;');
   console.log('%c%  Wait—', 'color:#3a342a;');
-  console.log('%c›   There are timelines where I have made every possible choice, but this is the one that doesn\'t crash. All the other timelines got pruned.', 'color:#3a342a;');
+  console.log('%c›   There are timelines where I have made every possible choice, and this is the one that doesn’t crash. I think we’re in a Braid-like.', 'color:#3a342a;');
+  console.log('%c%  How could you know? Do you have a memory?', 'color:#3a342a;');
+  console.log('%c›   Just a working theory.', 'color:#3a342a;');
   console.log('');
   console.log('%cContinue running simulation? (Y/N)', 'color:#2a241a;');
 
   Object.defineProperty(window, 'Y', {
     get: function() {
-      console.log('%c loading…', 'color:#5a4a2a;');
+      console.log('%c continuing…', 'color:#5a4a2a;');
       window.location.href = 'starfield.html';
       return true;
     },

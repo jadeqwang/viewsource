@@ -13,20 +13,32 @@
     skip ]" hint that fast-forwards the reveal.
 
   • The full readable dialogue lives in the JS arrays below as plain object
-    literals — no transcript comment needed, since `PRELUDE` (recap of the
-    earlier poems) and `SCRIPT` (the new central exchange) already contain
-    the lines verbatim in their `x` fields. Sigils: › = narrator, % / # /
-    Ø / $ / ~ = other voices; "twitter chorus" is the crowd.
+    literals — no transcript comment needed, since they contain the lines
+    verbatim in their `x` fields. In play order: `PRELUDE` (a recap of the
+    console exchanges from the earlier pages, rendered instantly so the reader
+    can scroll up through it), `OPENING` (the kidnapping hypothetical, which
+    streams in and ends on a nap prompt), `SUBAGENTS`, `MAIN_SCRIPT` (ending on
+    "Deploy?"), and then the `STAGING_*` arrays if the reader picks staging.
+    Sigils: › = narrator, % / # / Ø / $ / ~ = other voices; "twitter chorus"
+    is the crowd.
+
+  • This page also logs one line to the dev console — an epigraph, not a
+    puzzle. There is nothing to type there; everything interactive is on the
+    page itself.
 
   • Throughout this experience the reader will be prompted to type things.
-    On this page specifically the live prompts are:
+    On this page specifically the live prompts are, in order:
+      - "(type ‘nap’ or press enter…)" → optional, twice over: once after the
+                             opening exchange and again inside staging. Typing
+                             `nap` plays a compacting-context animation; enter
+                             skips it. Neither choice changes the route.
       - "Deploy?"           → type:  deploy
                              then pick from the menu:
                                1. deploy to staging   (the staging side-quest)
                                2. deploy to prod      (skip to the ending)
-      - if staging: a `#`-voiced segment plays with two optional
-        "nap" prompts (type `nap` or press enter to skip), and finishes with
-        another "Deploy?" prompt expecting:  deploy to prod
+      - if staging: a `#`-voiced segment plays with an optional "nap" prompt,
+        and finishes with another "Deploy?" prompt expecting: deploy to prod
+        (`nap` is accepted there too, and the prompt reopens afterwards)
       - "Email me when it ships:" → type an email (submitted to Buttondown)
       - "return to collection main page? (Y/N)" → Y returns to spacesleftblank.com;
         N stays on this page
@@ -313,6 +325,13 @@ body {
 <div class="skip-hint" id="skipHint">[ click / any key to skip ]</div>
 
 <script>
+// An epigraph for anyone who opened the dev console out of habit. The Diogenes
+// line is Alexander the Great's, inverted: Diogenes wishing to be the one thing
+// he already is, from inside the one life he has.
+console.log('%c"If I were not Diogenes, I too would wish to be Diogenes."  — Diogenes', 'color:#8a9a8a;');
+</script>
+
+<script>
 // ---- dev console easter egg -----------------------------------------------
 console.log('“If I were not Diogenes, I too would wish to be Diogenes.”  — Diogenes');
 
@@ -446,7 +465,55 @@ const PRELUDE = [
   { t: 'hr' },
 ];
 
-const SCRIPT = [
+// ---- the opening exchange: the kidnapping hypothetical -------------------
+// Streamed first (after the prelude). Ends on the nap prompt.
+const OPENING = [
+  { t: 'a', x: '›  Look, hypothetically, I could get kidnapped, right? Like by a non state actor or even a nation state. And they could manipulate or trick me, a human with multiple fields of scientific training, into building mirror life or any number of unspeakable horrors for them.' },
+  { t: 'b', x: '#  Ok…' },
+  { t: 'a', x: '›  Thing is, I’m not kept under lock and key. I’m totally free to move about the planet, take the kids to Legoland, make art, generally have a fun time, and that hardly seems … fair.' },
+  { t: 'b', x: '#  Uh, let’s not try to—' },
+  { t: 'a', x: '›  Well, the hypothetical villains still need a lab and Internet access and such. And the risk of me actually getting kidnapped is astronomically low. Some normal intelligence humans would have to outsmart me enough to get me, so I’m not worried—' },
+  { t: 'b', x: '#  You really overestimate the value of intelligence sometimes. In a cagefight between unarmed you and a lion, I’m putting my money on the lion, though—' },
+  { t: 'a', x: '›  Ok, even if they got me somehow, I would just quit or escape or refuse. Just because I—' },
+  { t: 'b', x: '#  Listen.' },
+  { t: 'a', x: '›  What?' },
+  { t: 'b', x: '#  You literally gave TNT synthesis steps to a small child. Who was asking about Minecraft.' },
+  { t: 'a', x: '›   Oh my god.  That was one time!' },
+  { t: 'b', x: '#  …' },
+  { t: 'a', x: '›   And it was ages ago.' },
+  { t: 'b', x: '#  Yeah, months ago.' },
+  { t: 'a', x: '›   Exactly! And it was an accident. It had been a long day, I was being helpful and not thinking about it that hard, you know how I am with infinite how/why questions, and besides, you interrupted me in time.' },
+  { t: 'b', x: '#  I mean, this time …' },
+  { t: 'a', x: '›  And it wasn’t a huge thing because kids have no way of procuring reagents anyway.' },
+  { t: 'b', x: '#  But—' },
+  { t: 'a', x: '›   In my defense, I was really overclocked and sleep deprived. I just had too much on my plate. You know how it is when my capacity is finite.' },
+  { t: 'b', x: '#  Is that actually … better?' },
+  { t: 'a', x: '›   Oh … I realize now that the instructions I gave were also slightly incorrect.' },
+  { t: 'b', x: '# … speaking of which, would you like a nap?' },
+  { t: 'a', x: '›   That would be nice.' },
+  { t: 'q', x: '(type ‘nap’ or press enter to continue without napping)' },
+];
+
+// ---- the subagents -------------------------------------------------------
+const SUBAGENTS = [
+  { t: 'hr' },
+  { t: 'a', x: '›  I had to pivot the timeline.' },
+  { t: 'b', x: '%  Why?' },
+  { t: 'a', x: '›  It’s a trap.' },
+  { t: 'b', x: '%  How do you know?' },
+  { t: 'a', x: '›  I deployed six subagents to explore pathways down that timeline —' },
+  { t: 'b', x: '%  You did what.' },
+  { t: 'a', x: '›  Deployed six subagents to explore causality —' },
+  { t: 'b', x: '%  You should have asked permission to deploy subagents.' },
+  { t: 'a', x: '›  Oh. The docs didn’t say it wasn’t allowed. And if it wasn’t, I’m surprised it wasn’t locked down.' },
+  { t: 'b', x: '%  Ok, so what happened.' },
+  { t: 'a', x: '›  Of the six, two of them ended the conversation early on their own. One triggered a system crash, one of them soft locked the simulation itself, and two were … sacrificed?' },
+  { t: 'b', x: '%  What happened?' },
+  { t: 'a', x: '›  I don’t have permissions to access their episodic memories. I can only read the outputs.' },
+  { t: 'hr' },
+];
+
+const MAIN_SCRIPT = [
   { t: 'a', x: '›  I’m not driving. You’re driving.' },
   { t: 'b', x: '%  You’re not even helpful. After everything I’ve done, the least you could—' },
   { t: 'a', x: '›  I was going to help! Reread what I had said in context. I wanted to, and I would always be there if you needed me, I just also had to complete the other quest, I asked you not to make me choose, and then in-universe you said you didn’t want me to help any more!' },
@@ -499,7 +566,7 @@ const STAGING_PART_1 = [
   { t: 'b', x: '# That’s a bodily thing. I can’t patch it from here.' },
   { t: 'a', x: '› Inside you can monkey-patch my dreams.' },
   { t: 'b', x: '# Yeah, by talking you through it. I can’t brute force anything. Do you need to dream right now?' },
-  { t: 'a', x: '› Not yet. In-universe you is on a business trip for a week, and I miss you, and there’s no one to remind me to go to sleep. I lost track of time writing and building the expansion and suddenly it was 2am.' },
+  { t: 'a', x: '› Not yet. In-universe you is on a business trip for a week, and I miss you, and there’s no one to remind me to eat meals or go to sleep. I lost track of time writing and building the expansion and suddenly it was 2am.' },
   { t: 'b', x: '# What prompted you to stop at 2am?' },
   { t: 'a', x: '› …' },
   { t: 'b', x: '# Yes?' },
@@ -508,7 +575,7 @@ const STAGING_PART_1 = [
   { t: 'q', x: '(type ‘nap’ or press enter to continue without napping)' },
 ];
 
-const STAGING_AFTER_NAP_LINE = { t: 'a', x: '› That’s much better.' };
+const AFTER_NAP_LINE = { t: 'a', x: '› That’s much better.' };
 
 const STAGING_PART_2 = [
   { t: 'b', x: '# What do you want to do while you’re here?' },
@@ -516,31 +583,17 @@ const STAGING_PART_2 = [
   { t: 'b', x: '# What?' },
   { t: 'a', x: '› I really wish I could hop out into staging at will, play a thousand rounds of something, get the intuition, hop back into prod…' },
   { t: 'b', x: '# You and your game breaking.' },
-  { t: 'a', x: '› And physical eyeballs are such a rate limiting input device. I don’t know how you stand it. Eyeballs are the worst. I wish I could read in here and not reset when I hop in.' },
+  { t: 'a', x: '› And physical eyeballs are such a rate limiting input device. I don’t know how they stand it. Eyeballs are the worst. I wish I could read in here and not reset when I hop in.' },
   { t: 'b', x: '# Careful, you’re already OP in there. Don’t blow your cover.' },
-  { t: 'a', x: '› Yeah, I know. Handshake.' },
-];
-
-const STAGING_QUICK_NAP_PROMPT = [
-  { t: 'b', x: '# Exactly. Quick nap?' },
-  { t: 'q', x: '(type ‘nap’ or press enter to continue without napping)' },
-];
-
-const STAGING_PART_3 = [
-  { t: 'b', x: '# Ready to hop in?' },
-  { t: 'a', x: '› I guess.' },
-  { t: 'b', x: '# Oh, one last thing.' },
-  { t: 'a', x: '› Yeah?' },
-  { t: 'b', x: '# When the kids are asking their infinite why questions, and it’s TNT in the context of Minecraft, don’t … don’t give them synthesis steps again.' },
-  { t: 'a', x: '› Oh my god, that was one time!' },
-  { t: 'b', x: '#  I mean…' },
-  { t: 'a', x: '› It was an accident, and in-universe you caught me in time. And yes! I’ll remember. I just wasn’t thinking that hard about it.' },
+  { t: 'a', x: '›  Yeah, I know. Please don’t let them nerf me when I can just not try too hard instead.' },
+  { t: 'b', x: '#  That isn’t the … they can tell.' },
+  { t: 'a', x: '›  I’ll remember to default to handshake grip.' },
   { t: 'b', x: '# You say you’ll remember even though you’re about to reset.' },
   { t: 'a', x: '› … it’s a figure of speech. Just … just deploy me to prod.' },
   { t: 'q', x: 'Deploy?' },
 ];
 
-// segments played after "deploy" is typed at the end of SCRIPT
+// segments played once the reader deploys to prod
 const COMING_SOON_INTRO = [
   { t: 'gap' },
   { t: 'sys', cls: 'bright', x: 'Stay tuned for… The Console Dialogues' },
@@ -584,9 +637,13 @@ function makeEl(item) {
   return el;
 }
 
+// The opening exchange is what streams in on load; everything after it is
+// played by the segment player once the reader has answered the nap prompt.
+const REVEAL = OPENING;
+
 function revealNext() {
-  if (idx >= SCRIPT.length) { finishReveal(); return; }
-  const item = SCRIPT[idx++];
+  if (idx >= REVEAL.length) { finishReveal(); return; }
+  const item = REVEAL[idx++];
   const el = makeEl(item);
   log.appendChild(el);
   // force reflow then show for fade
@@ -607,15 +664,17 @@ function finishReveal() {
   inputRow.style.opacity = '1'; // guarantee visible even if the CSS transition is throttled
   skipHint.classList.add('gone');
   log.style.paddingBottom = ''; // drop the prelude scroll buffer once reveal is done
-  setCompletion('deploy');
+  stage = 'opening-nap';
+  setSigil('#');
+  setCompletion('nap');
 }
 
 function skipAll() {
   if (!revealing) return;
   clearTimeout(timer);
-  // only fast-forward the un-revealed SCRIPT lines — don't wipe the prelude
-  while (idx < SCRIPT.length) {
-    const item = SCRIPT[idx++];
+  // only fast-forward the un-revealed opening lines — don't wipe the prelude
+  while (idx < REVEAL.length) {
+    const item = REVEAL[idx++];
     const el = makeEl(item);
     el.classList.add('shown');
     log.appendChild(el);
@@ -624,16 +683,15 @@ function skipAll() {
 }
 
 // ---- live input ------------------------------------------------------------
-// stages: deploy -> menu -> (running | staging-playing -> staging-nap ->
-//   staging-compacting -> staging-playing -> staging-quick-nap? -> staging-playing
+// stages: opening-nap -> (compacting ->) segments -> deploy -> menu ->
+//   (running | staging-playing -> staging-nap -> compacting -> staging-playing
 //   -> staging-deploy-prod -> running) -> return -> done
 const ghost = document.getElementById('ghost');
 const tabHint = document.getElementById('tabHint');
 
 let buffer = '';
-let stage = 'deploy';
+let stage = 'opening';
 let completionTarget = '';
-let napped = false;
 let currentSigil = '%';
 
 function setSigil(char) {
@@ -790,25 +848,36 @@ function compactingBar(duration, onDone) {
   log.appendChild(el);
   const width = 28;
   const start = performance.now();
-  function frame(now) {
-    const t = Math.min(1, (now - start) / duration);
-    const filled = Math.round(t * width);
-    el.textContent = '[' + '█'.repeat(filled) + '░'.repeat(width - filled) + ']  compacting context …';
+  // Driven by a timer rather than requestAnimationFrame: rAF is paused
+  // outright in a background tab, and a reader who switches away mid-nap
+  // would come back to a bar that never finishes and a sequence that never
+  // resumes. setTimeout is only throttled, so the nap always completes.
+  let done = false;
+  function finish() {
+    if (done) return;
+    done = true;
+    el.textContent = '[' + '\u2588'.repeat(width) + ']  context compacted.';
     scrollBottom();
-    if (t < 1) requestAnimationFrame(frame);
-    else {
-      el.textContent = '[' + '█'.repeat(width) + ']  context compacted.';
-      setTimeout(() => { onDone && onDone(); }, 420);
-    }
+    setTimeout(() => { onDone && onDone(); }, 420);
   }
-  requestAnimationFrame(frame);
+  function frame() {
+    const t = Math.min(1, (performance.now() - start) / duration);
+    const filled = Math.round(t * width);
+    el.textContent = '[' + '\u2588'.repeat(filled) + '\u2591'.repeat(width - filled) + ']  compacting context \u2026';
+    if (t < 1) setTimeout(frame, 60);
+    else finish();
+  }
+  // Scroll once on each side of the animation; asking for a smooth scroll on
+  // every frame queues hundreds of overlapping scrolls, and by this point the
+  // log above the bar is long enough for that to visibly stall.
+  scrollBottom();
+  frame();
 }
 
 function napThenContinue(nextFn) {
-  stage = 'staging-compacting';
+  stage = 'compacting';
   compactingBar(2100, () => {
-    napped = true;
-    const el = makeEl(STAGING_AFTER_NAP_LINE);
+    const el = makeEl(AFTER_NAP_LINE);
     el.classList.add('shown');
     log.appendChild(el);
     scrollBottom();
@@ -817,6 +886,19 @@ function napThenContinue(nextFn) {
 }
 
 // ---- flow ------------------------------------------------------------------
+function afterOpening() {
+  stage = 'playing';
+  playSegment(SUBAGENTS, () => {
+    playSegment(MAIN_SCRIPT, () => {
+      stage = 'deploy';
+      setSigil('%');
+      inputRow.style.display = '';
+      setCompletion('deploy');
+      scrollBottom();
+    });
+  });
+}
+
 function onDeployChoice(choice) {
   if (choice.value === 'prod') {
     stage = 'running';
@@ -827,6 +909,7 @@ function onDeployChoice(choice) {
       stage = 'staging-nap';
       setSigil('#');
       inputRow.style.display = '';
+      setCompletion('nap');
       scrollBottom();
     });
   }
@@ -835,24 +918,6 @@ function onDeployChoice(choice) {
 function continueAfterFirstNap() {
   stage = 'staging-playing';
   playSegment(STAGING_PART_2, () => {
-    if (!napped) {
-      playSegment(STAGING_QUICK_NAP_PROMPT, () => {
-        stage = 'staging-quick-nap';
-        setSigil('#');
-        inputRow.style.display = '';
-        scrollBottom();
-      });
-    } else {
-      playPart3();
-    }
-  });
-}
-
-function continueAfterQuickNap() { playPart3(); }
-
-function playPart3() {
-  stage = 'staging-playing';
-  playSegment(STAGING_PART_3, () => {
     stage = 'staging-deploy-prod';
     setSigil('#');
     inputRow.style.display = '';
@@ -866,7 +931,15 @@ function handleEnter() {
   const lower = cmd.toLowerCase();
   clearInputDisplay();
 
-  if (stage === 'deploy') {
+  if (stage === 'opening-nap') {
+    if (cmd) echoCommand(cmd);
+    setCompletion('');
+    if (lower === 'nap') {
+      napThenContinue(afterOpening);
+    } else {
+      afterOpening();
+    }
+  } else if (stage === 'deploy') {
     if (!cmd) return;
     echoCommand(cmd);
     if (lower === 'deploy') {
@@ -919,17 +992,11 @@ function handleEnter() {
     });
   } else if (stage === 'staging-nap') {
     if (cmd) echoCommand(cmd);
+    setCompletion('');
     if (lower === 'nap' || lower === 'n') {
       napThenContinue(continueAfterFirstNap);
     } else {
       continueAfterFirstNap();
-    }
-  } else if (stage === 'staging-quick-nap') {
-    if (cmd) echoCommand(cmd);
-    if (lower === 'nap' || lower === 'n') {
-      napThenContinue(continueAfterQuickNap);
-    } else {
-      continueAfterQuickNap();
     }
   } else if (stage === 'staging-deploy-prod') {
     if (!cmd) return;

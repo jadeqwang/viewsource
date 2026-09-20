@@ -8,10 +8,14 @@ Static pages, no build step. Served as Cloudflare Workers assets.
 
     npx wrangler deploy
 
-`viewsource.cc/` is the first poem, *Remember when*, and the entry point to the
-sequence. `preview-convergence.html` is the previous entry point and still works;
-repoint the console puzzle on spacesleftblank.com at the bare domain when you
-want the new opening to be what readers land on.
+`viewsource.cc/` is the front door: the poem *bios*, and a console riddle that
+gates the rest of the sequence (`answer("banach tarski banach tarski")`). That
+riddle used to live on spacesleftblank.com; repoint or retire that redirect when
+convenient. `preview-convergence.html` is the previous entry point and still
+works.
+
+See `docs/NOTES.md` for the page order, the forks, and how the terminal page is
+put together.
 
 © 2026 Jade Q Wang. Licensed under
 [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
