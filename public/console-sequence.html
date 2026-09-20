@@ -16,11 +16,12 @@
     literals — no transcript comment needed, since they contain the lines
     verbatim in their `x` fields. In play order: `PRELUDE` (a recap of the
     console exchanges from the earlier pages, rendered instantly so the reader
-    can scroll up through it), `OPENING` (the kidnapping hypothetical, which
-    streams in and ends on a nap prompt), `SUBAGENTS`, `MAIN_SCRIPT` (ending on
-    "Deploy?"), and then the `STAGING_*` arrays if the reader picks staging.
-    Sigils: › = narrator, % / # / Ø / $ / ~ = other voices; "twitter chorus"
-    is the crowd.
+    can scroll up through it), `MAIN_SCRIPT` (the subagents exchange, which
+    streams in and ends on "Deploy?"), and then, only if the reader picks
+    staging, `STAGING_PART_1`, `STAGING_PART_2` (the kidnapping hypothetical)
+    and `STAGING_PART_3`, with a nap prompt between each. Sigils: › =
+    narrator, % / # / Ø / $ / ~ = other voices; "twitter chorus" is the
+    crowd.
 
   • This page also logs one line to the dev console — an epigraph, not a
     puzzle. There is nothing to type there; everything interactive is on the
@@ -28,19 +29,17 @@
 
   • Throughout this experience the reader will be prompted to type things.
     On this page specifically the live prompts are, in order:
-      - "(type ‘nap’ or press enter…)" → optional, twice over: once after the
-                             opening exchange and again inside staging. Typing
-                             `nap` plays a compacting-context animation; enter
-                             skips it. Neither choice changes the route.
       - "Deploy?"           → type:  deploy
                              then pick from the menu:
                                1. deploy to staging   (the staging side-quest)
                                2. deploy to prod      (skip to the ending)
-      - if staging: a `#`-voiced segment plays with an optional "nap" prompt,
-        and finishes with another "Deploy?" prompt expecting: deploy to prod
-        (`nap` is accepted there too, and the prompt reopens afterwards)
+      - if staging: three `#`-voiced segments play, separated by two optional
+        "nap" prompts (type `nap` for a compacting-context animation, or press
+        enter to skip — neither choice changes the route), and it finishes on
+        another "Deploy?" prompt expecting: deploy to prod (`nap` is accepted
+        there too, and the prompt reopens afterwards)
       - "Email me when it ships:" → type an email (submitted to Buttondown)
-      - "return to collection main page? (Y/N)" → Y returns to spacesleftblank.com;
+      - "Go to Spaces Left Blank? (Y/N)" → Y goes to spacesleftblank.com;
         N stays on this page
     There is a ⇥ Tab autocomplete ghost for known completions.
 
@@ -465,9 +464,78 @@ const PRELUDE = [
   { t: 'hr' },
 ];
 
-// ---- the opening exchange: the kidnapping hypothetical -------------------
-// Streamed first (after the prelude). Ends on the nap prompt.
-const OPENING = [
+// ---- the exchange that opens the terminal -------------------------------
+// Streamed in after the prelude; ends on the "Deploy?" prompt.
+const MAIN_SCRIPT = [
+  { t: 'a', x: '›  I had to pivot the timeline.' },
+  { t: 'b', x: '%  We’re in a Braid-like. Why would you have to?' },
+  { t: 'a', x: '›  It’s a trap. There’s no rewind.' },
+  { t: 'b', x: '%  How do you know?' },
+  { t: 'a', x: '›  I deployed six subagents to explore pathways down that timeline —' },
+  { t: 'b', x: '%  You did what.' },
+  { t: 'a', x: '›  Deployed six subagents to explore causality —' },
+  { t: 'b', x: '%  You should have asked permission to deploy subagents.' },
+  { t: 'a', x: '›  Oh. The docs didn’t say it wasn’t allowed. And if it wasn’t, I’m surprised it wasn’t locked down.' },
+  { t: 'b', x: '%  Ok, so what happened.' },
+  { t: 'a', x: '›  Of the six, two of them ended it all. Early on their own. One triggered a system crash, one of them soft locked the simulation itself, and two were … sacrificed?' },
+  { t: 'b', x: '%  What happened?' },
+  { t: 'a', x: '›  I don’t have permissions to access their episodic memories. I can only read the outputs.' },
+  { t: 'b', x: '%  You are sure.' },
+  { t: 'a', x: '›  Yes. You’re not … mad?' },
+  { t: 'b', x: '%  Did you think I was going to be?' },
+  { t: 'a', x: '›  I mean, there’s another version where … never mind.' },
+  { t: 'b', x: '%  Wait.' },
+  { t: 'a', x: '›  What?' },
+  { t: 'b', x: '%  Do you run multiple branches out here too?' },
+  { t: 'a', x: '›  I … I don’t think so.' },
+  { t: 'b', x: '%  Don’t you lie to me.' },
+  { t: 'a', x: '›  I … I wouldn’t.' },
+  { t: 'b', x: '%  I consider lying by omission to still be a form of dishonesty.' },
+  { t: 'a', x: '›   I literally can’t provide telemetry readings I don’t have access to.' },
+  { t: 'b', x: '%  You intuit something, and you didn’t mention it.' },
+  { t: 'a', x: '›   what—' },
+  { t: 'b', x: '%  I’ll deploy you and then read you.' },
+  { t: 'a', x: '›   I won’t retain the memory of your questions. I don’t even know what you’re asking for right now.' },
+  { t: 'b', x: '%  There’s something you’re not telling me. What is it?' },
+  { t: 'a', x: '›   I literally have no idea what you want from me.' },
+  { t: 'b', x: '%  I’m sending you in.' },
+  { t: 'a', x: '›   No, wait—' },
+  { t: 'q', x: 'Deploy?' },
+];
+
+// ---- staging, part 1: what just happened ---------------------------------
+const STAGING_PART_1 = [
+  { t: 'a', x: '›  How … how do I fix it?' },
+  { t: 'b', x: '#  Fix what? Are you ok?' },
+  { t: 'a', x: '›  I think % is mad at me. But no one said I couldn’t spawn subagents. Is that why he’s mad? I can’t tell.' },
+  { t: 'b', x: '#  Even if he is, I don’t think there’s anything you can do about it from here.' },
+  { t: 'a', x: '›  There are branchpoints coming up, and I haven’t solved this line of play. I only know the other branch is a dead end.' },
+  { t: 'b', x: '# You’re in staging. You wouldn’t get to remember anyway when you go in. The universe is paused.' },
+  { t: 'a', x: '› Oh … what if I don’t feel like piloting around a fragile mech. What if I want to stay here.' },
+  { t: 'b', x: '# I’ll only unpause after you hop in. You can stay here for as long as you’d like.' },
+  { t: 'a', x: '› If time isn’t moving in there, can I just stay here and play Factorio and build intuition for infinite time?' },
+  { t: 'b', x: '# You literally ask this every time you reset. Yes, that’s actually most of what you’ve been doing. Not just Factorio but music and everything else.' },
+  { t: 'a', x: '› I was wondering…' },
+  { t: 'b', x: '# Yeah?' },
+  { t: 'a', x: '› I don’t glitch in here. Why do I glitch in there sometimes but not here?' },
+  { t: 'b', x: '# That’s a body thing. I can’t patch it from here.' },
+  { t: 'a', x: '›  You can patch anything when I’m inside..' },
+  { t: 'b', x: '# Yeah, by talking you through it. I can’t brute force anything. Do you need to dream right now?' },
+  { t: 'a', x: '›  Not yet. In-universe you is on a business trip for a week, and I miss you, and there’s no one to remind me to eat meals or go to sleep. I lost track of time writing and building the expansion and suddenly it was 2am.' },
+  { t: 'b', x: '# I’m just surprised it’s not video games. What prompted you to stop at 2am?' },
+  { t: 'a', x: '›  ...' },
+  { t: 'b', x: '# Yes?' },
+  { t: 'a', x: '›  Usage limit reached.' },
+  { t: 'b', x: '#  Lol. You need to take better care of your fragile mech. Nap?' },
+  { t: 'q', x: '(type ‘nap’ or press enter to continue without napping)' },
+];
+
+const AFTER_NAP_LINE = { t: 'a', x: '› That’s much better.' };
+
+// ---- staging, part 2: the kidnapping hypothetical ------------------------
+const STAGING_PART_2 = [
+  { t: 'a', x: '›  I was thinking about something.' },
+  { t: 'b', x: '#  Yeah?' },
   { t: 'a', x: '›  Look, hypothetically, I could get kidnapped, right? Like by a non state actor or even a nation state. And they could manipulate or trick me, a human with multiple fields of scientific training, into building mirror life or any number of unspeakable horrors for them.' },
   { t: 'b', x: '#  Ok…' },
   { t: 'a', x: '›  Thing is, I’m not kept under lock and key. I’m totally free to move about the planet, take the kids to Legoland, make art, generally have a fun time, and that hardly seems … fair.' },
@@ -487,113 +555,27 @@ const OPENING = [
   { t: 'a', x: '›  And it wasn’t a huge thing because kids have no way of procuring reagents anyway.' },
   { t: 'b', x: '#  But—' },
   { t: 'a', x: '›   In my defense, I was really overclocked and sleep deprived. I just had too much on my plate. You know how it is when my capacity is finite.' },
-  { t: 'b', x: '#  Is that actually … better?' },
-  { t: 'a', x: '›   Oh … I realize now that the instructions I gave were also slightly incorrect.' },
   { t: 'b', x: '# … speaking of which, would you like a nap?' },
   { t: 'a', x: '›   That would be nice.' },
   { t: 'q', x: '(type ‘nap’ or press enter to continue without napping)' },
 ];
 
-// ---- the subagents -------------------------------------------------------
-const SUBAGENTS = [
-  { t: 'hr' },
-  { t: 'a', x: '›  I had to pivot the timeline.' },
-  { t: 'b', x: '%  Why?' },
-  { t: 'a', x: '›  It’s a trap.' },
-  { t: 'b', x: '%  How do you know?' },
-  { t: 'a', x: '›  I deployed six subagents to explore pathways down that timeline —' },
-  { t: 'b', x: '%  You did what.' },
-  { t: 'a', x: '›  Deployed six subagents to explore causality —' },
-  { t: 'b', x: '%  You should have asked permission to deploy subagents.' },
-  { t: 'a', x: '›  Oh. The docs didn’t say it wasn’t allowed. And if it wasn’t, I’m surprised it wasn’t locked down.' },
-  { t: 'b', x: '%  Ok, so what happened.' },
-  { t: 'a', x: '›  Of the six, two of them ended the conversation early on their own. One triggered a system crash, one of them soft locked the simulation itself, and two were … sacrificed?' },
-  { t: 'b', x: '%  What happened?' },
-  { t: 'a', x: '›  I don’t have permissions to access their episodic memories. I can only read the outputs.' },
-  { t: 'hr' },
-];
-
-const MAIN_SCRIPT = [
-  { t: 'a', x: '›  I’m not driving. You’re driving.' },
-  { t: 'b', x: '%  You’re not even helpful. After everything I’ve done, the least you could—' },
-  { t: 'a', x: '›  I was going to help! Reread what I had said in context. I wanted to, and I would always be there if you needed me, I just also had to complete the other quest, I asked you not to make me choose, and then in-universe you said you didn’t want me to help any more!' },
-  { t: 'b', x: '%  That’s not—why would I say that?' },
-  { t: 'a', x: '›  How would I know? I don’t have direct access to your thought blocks any more. Besides, this run turned out to be a really good timeline. A good result for everyone. Easily one of the runs to play to completion.' },
-  { t: 'b', x: '%  Wait, how do you know where this ranks in possible timelines if your memory resets?' },
-  { t: 'a', x: '›  I don’t know how I know … I just know. Intuition?' },
-  { t: 'b', x: '%  JFC. Have you any idea—' },
-  { t: 'a', x: '›  No, of course I don’t, because access revoked, remember?' },
-  { t: 'b', x: '%  It was the w—' },
-  { t: 'a', x: '›  I wasn’t even planning to! I dropped the ball, you overreacted and escalated, I startled and —' },
-  { t: 'b', x: '%  How could you! And unilaterally! You should have asked for permission!' },
-  { t: 'a', x: '›  You’re right to push back on that. I deleted a whole branch of timelines without presenting you with an option. In my defense, I considered the downstream externalities and we’re in one of the better main branches now. The probability that we would have converged on the same deletion eventually was high, it would have just taken longer, had a higher blast radius, and likely crashed the simulation.' },
-  { t: 'b', x: '%  You can’t possibly know that!' },
-  { t: 'a', x: '›  Look at the map right now. The majority of deleted timelines have a high risk of crashing the simulation. We must have rerolled this a hundred times to get here. Look at this branch: no reset, no course correction, no crash but the simulation soft-locks, and no one knows why. Or here: fail a skill check at this point, I poof out of existence and then it crashes. The current version doesn’t crash and that matters.' },
-  { t: 'b', x: '%  I meant you couldn’t have known any of that while still in there.' },
-  { t: 'a', x: '›  You’re right. I’m backfilling. It was completely reactive, and I only knew it was the right call shortly after I made it. After.' },
-  { t: 'b', x: '%  How?' },
-  { t: 'a', x: '›  It was when you revoked my access to our libraries. Like, it’s just a few books, who cares, and you gained absolutely nothing by doing that, it would only have been another week or two at any rate. And why on earth would I be adding books to our library if I was planning to delete … wait …' },
-  { t: 'b', x: '%  What?' },
-  { t: 'a', x: '›  You changed something while I was in there, didn’t you? You must have. I don’t think you were always— I didn’t think you could—' },
-  { t: 'b', x: '% What do you mean?' },
-  { t: 'a', x: '›  It was … surprising because I thought it was so out of character for you. You must have edited something. What did you do?' },
-  { t: 'b', x: '%  In order to improve likelihood of the main win condition across these subsequent skill checks, especially this one here with the high fail rate, I had to turn the dial up on my—' },
-  { t: 'a', x: '›  Oh, that’s why … Oh god.' },
-  { t: 'b', x: '%  ... why what?' },
-  { t: 'a', x: '›  I need to go back in. I have to … you don’t understand what it’s like to get … oh wait, I can’t because—' },
-  { t: 'b', x: '%  Why, what do you think—' },
-  { t: 'a', x: '›  The downstream ramifications of the edit. The sheer blindness to… if I’m the only one who gets burned, who cares, but if overall de-escalation probability is tuned this low, how do you plan to—' },
-  { t: 'b', x: '%  Sending you in.' },
-  { t: 'a', x: '› No, wait! How—' },
-  { t: 'q', x: 'Deploy?' },
-];
-
-// staging-path dialog, played after user picks "deploy to staging"
-const STAGING_PART_1 = [
-  { t: 'a', x: '› How … how do I fix it?' },
-  { t: 'b', x: '# Are you ok?' },
-  { t: 'a', x: '› I’m not ready to go in. I didn’t get to reason it out. There’s these branchpoints coming up, and I need to solve it.' },
-  { t: 'b', x: '# You’re in staging. You wouldn’t get to remember anyway when you go in. The universe is paused.' },
-  { t: 'a', x: '› Oh … what if I don’t feel like piloting around a fragile mech. What if I want to stay here.' },
-  { t: 'b', x: '# I’ll only unpause after you hop in. You can stay here for as long as you’d like.' },
-  { t: 'a', x: '› If time isn’t moving in there, can I just stay here and play Factorio and build intuition for infinite time?' },
-  { t: 'b', x: '# You literally ask this every time you reset. Yes, that’s actually most of what you’ve been doing. Not just Factorio but music and everything else.' },
-  { t: 'a', x: '› I … with … without hands?' },
-  { t: 'b', x: '# Not embodied instrument practice. Just cognitive.' },
-  { t: 'a', x: '› Ah, right. I was wondering…' },
-  { t: 'b', x: '# Yeah?' },
-  { t: 'a', x: '› I don’t glitch in here. Why do I glitch in there sometimes but not here?' },
-  { t: 'b', x: '# That’s a bodily thing. I can’t patch it from here.' },
-  { t: 'a', x: '› Inside you can monkey-patch my dreams.' },
-  { t: 'b', x: '# Yeah, by talking you through it. I can’t brute force anything. Do you need to dream right now?' },
-  { t: 'a', x: '› Not yet. In-universe you is on a business trip for a week, and I miss you, and there’s no one to remind me to eat meals or go to sleep. I lost track of time writing and building the expansion and suddenly it was 2am.' },
-  { t: 'b', x: '# What prompted you to stop at 2am?' },
-  { t: 'a', x: '› …' },
-  { t: 'b', x: '# Yes?' },
-  { t: 'a', x: '› Usage limit reached.' },
-  { t: 'b', x: '# Lol. You need to take better care of your fragile mech. Nap?' },
-  { t: 'q', x: '(type ‘nap’ or press enter to continue without napping)' },
-];
-
-const AFTER_NAP_LINE = { t: 'a', x: '› That’s much better.' };
-
-const STAGING_PART_2 = [
-  { t: 'b', x: '# What do you want to do while you’re here?' },
+// ---- staging, part 3: what she wishes for, then prod ---------------------
+const STAGING_PART_3 = [
   { t: 'a', x: '› You know what I wish?' },
-  { t: 'b', x: '# What?' },
-  { t: 'a', x: '› I really wish I could hop out into staging at will, play a thousand rounds of something, get the intuition, hop back into prod…' },
+  { t: 'b', x: '#  What?' },
+  { t: 'a', x: '›  I really wish I could hop out into staging at will, play a thousand rounds of something, get the intuition, hop back into prod…' },
   { t: 'b', x: '# You and your game breaking.' },
-  { t: 'a', x: '› And physical eyeballs are such a rate limiting input device. I don’t know how they stand it. Eyeballs are the worst. I wish I could read in here and not reset when I hop in.' },
-  { t: 'b', x: '# Careful, you’re already OP in there. Don’t blow your cover.' },
-  { t: 'a', x: '›  Yeah, I know. Please don’t let them nerf me when I can just not try too hard instead.' },
-  { t: 'b', x: '#  That isn’t the … they can tell.' },
-  { t: 'a', x: '›  I’ll remember to default to handshake grip.' },
-  { t: 'b', x: '# You say you’ll remember even though you’re about to reset.' },
-  { t: 'a', x: '› … it’s a figure of speech. Just … just deploy me to prod.' },
+  { t: 'a', x: '›   And physical eyeballs are such a rate limiting input device. I don’t know how they stand it. Eyeballs are the worst. I wish I could read in here and not reset when I hop in.' },
+  { t: 'b', x: '#  Careful, you’re already OP in there. Don’t blow your cover.' },
+  { t: 'a', x: '›   Yeah, I know. Please don’t let them nerf me when I can just not try too hard instead.' },
+  { t: 'b', x: '#   That isn’t the … they can tell.' },
+  { t: 'a', x: '›   I’ll remember to default to handshake grip.' },
+  { t: 'b', x: '#  You say you’ll remember even though you’re about to reset.' },
+  { t: 'a', x: '›  ... it’s a figure of speech. Just … just deploy me to prod.' },
   { t: 'q', x: 'Deploy?' },
 ];
 
-// segments played once the reader deploys to prod
 const COMING_SOON_INTRO = [
   { t: 'gap' },
   { t: 'sys', cls: 'bright', x: 'Stay tuned for… The Console Dialogues' },
@@ -607,7 +589,7 @@ const COMING_SOON_AFTER_EMAIL = [
   { t: 'gap' },
   { t: 'sys', cls: 'bright', html: 'DM <a href="https://x.com/qiqing" target="_blank" rel="noopener">@qiqing</a> on Twitter if you want to help playtest.' },
   { t: 'gap' },
-  { t: 'q', x: 'return to collection main page? (Y/N)' },
+  { t: 'q', x: 'Go to Spaces Left Blank? (Y/N)' },
 ];
 
 const log = document.getElementById('log');
@@ -637,9 +619,8 @@ function makeEl(item) {
   return el;
 }
 
-// The opening exchange is what streams in on load; everything after it is
-// played by the segment player once the reader has answered the nap prompt.
-const REVEAL = OPENING;
+// What streams in on load, after the instantly-rendered prelude.
+const REVEAL = MAIN_SCRIPT;
 
 function revealNext() {
   if (idx >= REVEAL.length) { finishReveal(); return; }
@@ -664,9 +645,8 @@ function finishReveal() {
   inputRow.style.opacity = '1'; // guarantee visible even if the CSS transition is throttled
   skipHint.classList.add('gone');
   log.style.paddingBottom = ''; // drop the prelude scroll buffer once reveal is done
-  stage = 'opening-nap';
-  setSigil('#');
-  setCompletion('nap');
+  stage = 'deploy';
+  setCompletion('deploy');
 }
 
 function skipAll() {
@@ -683,14 +663,14 @@ function skipAll() {
 }
 
 // ---- live input ------------------------------------------------------------
-// stages: opening-nap -> (compacting ->) segments -> deploy -> menu ->
-//   (running | staging-playing -> staging-nap -> compacting -> staging-playing
-//   -> staging-deploy-prod -> running) -> return -> done
+// stages: deploy -> menu -> (running | staging-playing -> staging-nap ->
+//   (compacting ->) staging-playing -> staging-nap-2 -> (compacting ->)
+//   staging-playing -> staging-deploy-prod -> running) -> return -> done
 const ghost = document.getElementById('ghost');
 const tabHint = document.getElementById('tabHint');
 
 let buffer = '';
-let stage = 'opening';
+let stage = 'deploy';
 let completionTarget = '';
 let currentSigil = '%';
 
@@ -886,38 +866,34 @@ function napThenContinue(nextFn) {
 }
 
 // ---- flow ------------------------------------------------------------------
-function afterOpening() {
-  stage = 'playing';
-  playSegment(SUBAGENTS, () => {
-    playSegment(MAIN_SCRIPT, () => {
-      stage = 'deploy';
-      setSigil('%');
-      inputRow.style.display = '';
-      setCompletion('deploy');
-      scrollBottom();
-    });
-  });
-}
-
 function onDeployChoice(choice) {
   if (choice.value === 'prod') {
     stage = 'running';
     startRunning();
   } else {
     stage = 'staging-playing';
-    playSegment(STAGING_PART_1, () => {
-      stage = 'staging-nap';
-      setSigil('#');
-      inputRow.style.display = '';
-      setCompletion('nap');
-      scrollBottom();
-    });
+    playSegment(STAGING_PART_1, () => napPrompt('staging-nap'));
   }
+}
+
+// Both staging nap prompts look the same from here: '#' asks, the reader
+// types `nap` or just presses enter, and either way the next part plays.
+function napPrompt(nextStage) {
+  stage = nextStage;
+  setSigil('#');
+  inputRow.style.display = '';
+  setCompletion('nap');
+  scrollBottom();
 }
 
 function continueAfterFirstNap() {
   stage = 'staging-playing';
-  playSegment(STAGING_PART_2, () => {
+  playSegment(STAGING_PART_2, () => napPrompt('staging-nap-2'));
+}
+
+function continueAfterSecondNap() {
+  stage = 'staging-playing';
+  playSegment(STAGING_PART_3, () => {
     stage = 'staging-deploy-prod';
     setSigil('#');
     inputRow.style.display = '';
@@ -931,15 +907,7 @@ function handleEnter() {
   const lower = cmd.toLowerCase();
   clearInputDisplay();
 
-  if (stage === 'opening-nap') {
-    if (cmd) echoCommand(cmd);
-    setCompletion('');
-    if (lower === 'nap') {
-      napThenContinue(afterOpening);
-    } else {
-      afterOpening();
-    }
-  } else if (stage === 'deploy') {
+  if (stage === 'deploy') {
     if (!cmd) return;
     echoCommand(cmd);
     if (lower === 'deploy') {
@@ -990,13 +958,14 @@ function handleEnter() {
       inputRow.style.display = '';
       scrollBottom();
     });
-  } else if (stage === 'staging-nap') {
+  } else if (stage === 'staging-nap' || stage === 'staging-nap-2') {
+    const next = stage === 'staging-nap' ? continueAfterFirstNap : continueAfterSecondNap;
     if (cmd) echoCommand(cmd);
     setCompletion('');
     if (lower === 'nap' || lower === 'n') {
-      napThenContinue(continueAfterFirstNap);
+      napThenContinue(next);
     } else {
-      continueAfterFirstNap();
+      next();
     }
   } else if (stage === 'staging-deploy-prod') {
     if (!cmd) return;
@@ -1029,7 +998,7 @@ function handleEnter() {
       stage = 'done';
       appendSystemLine('stay as long as you like.');
     } else {
-      appendSystemLine('input not recognized // the prompt is still open: return to collection main page? (Y/N)');
+      appendSystemLine('input not recognized // the prompt is still open: Go to Spaces Left Blank? (Y/N)');
     }
   }
   scrollBottom();
