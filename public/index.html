@@ -98,12 +98,12 @@
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
-  --cream: #f6f3ee;
-  --ink: #1a1a18;
-  --warm-grey: #8a847a;
-  --faint: #d8d3cb;
-  --accent: #b8a88a;
-  --paper: #fffdf9;
+  --cream: #f2f1f8;
+  --ink: #1b1733;
+  --warm-grey: #78739a;
+  --faint: #d3cfe4;
+  --accent: #443a8c;
+  --paper: #fbfaff;
 }
 
 html { font-size: 16px; scroll-behavior: smooth; }
@@ -213,7 +213,7 @@ body::before {
   font-family: 'Cormorant Garamond', serif;
   font-size: 1.05rem;
   line-height: 1.72;
-  color: #3f3a33;
+  color: #342e5c;
 }
 
 .copilot-note p + p { margin-top: 0.75rem; }
@@ -235,7 +235,7 @@ body::before {
   margin-top: 4vh;
   font-size: 0.72rem;
   line-height: 1.6;
-  color: #e7e2da;
+  color: #e6e3f0;
   transition: color 0.6s ease;
 }
 
@@ -381,17 +381,17 @@ body::before {
         <feGaussianBlur stdDeviation="10"/>
       </filter>
       <linearGradient id="fadeTop" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#2a2825" stop-opacity="0.35"/>
-        <stop offset="0.3" stop-color="#3d3a36" stop-opacity="0.22"/>
-        <stop offset="0.55" stop-color="#6b665d" stop-opacity="0.12"/>
-        <stop offset="0.75" stop-color="#9e9889" stop-opacity="0.05"/>
-        <stop offset="1" stop-color="#f6f3ee" stop-opacity="0"/>
+        <stop offset="0" stop-color="#231d4e" stop-opacity="0.35"/>
+        <stop offset="0.3" stop-color="#332a68" stop-opacity="0.22"/>
+        <stop offset="0.55" stop-color="#585092" stop-opacity="0.12"/>
+        <stop offset="0.75" stop-color="#9a93c0" stop-opacity="0.05"/>
+        <stop offset="1" stop-color="#f2f1f8" stop-opacity="0"/>
       </linearGradient>
       <linearGradient id="fadeTopDark" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#1a1a18" stop-opacity="0.28"/>
-        <stop offset="0.25" stop-color="#2e2c28" stop-opacity="0.18"/>
-        <stop offset="0.5" stop-color="#4a463f" stop-opacity="0.08"/>
-        <stop offset="1" stop-color="#f6f3ee" stop-opacity="0"/>
+        <stop offset="0" stop-color="#1b1733" stop-opacity="0.28"/>
+        <stop offset="0.25" stop-color="#292151" stop-opacity="0.18"/>
+        <stop offset="0.5" stop-color="#423a7c" stop-opacity="0.08"/>
+        <stop offset="1" stop-color="#f2f1f8" stop-opacity="0"/>
       </linearGradient>
     </defs>
     <rect x="0" y="0" width="1440" height="420" fill="url(#fadeTopDark)" filter="url(#inkSoftTop)"/>
@@ -416,17 +416,17 @@ body::before {
         <feGaussianBlur stdDeviation="8"/>
       </filter>
       <linearGradient id="fadeBot" x1="0" y1="1" x2="0" y2="0">
-        <stop offset="0" stop-color="#2a2825" stop-opacity="0.38"/>
-        <stop offset="0.25" stop-color="#3d3a36" stop-opacity="0.22"/>
-        <stop offset="0.5" stop-color="#6b665d" stop-opacity="0.1"/>
-        <stop offset="0.75" stop-color="#9e9889" stop-opacity="0.04"/>
-        <stop offset="1" stop-color="#f6f3ee" stop-opacity="0"/>
+        <stop offset="0" stop-color="#231d4e" stop-opacity="0.38"/>
+        <stop offset="0.25" stop-color="#332a68" stop-opacity="0.22"/>
+        <stop offset="0.5" stop-color="#585092" stop-opacity="0.1"/>
+        <stop offset="0.75" stop-color="#9a93c0" stop-opacity="0.04"/>
+        <stop offset="1" stop-color="#f2f1f8" stop-opacity="0"/>
       </linearGradient>
       <linearGradient id="fadeBotDark" x1="0" y1="1" x2="0" y2="0">
-        <stop offset="0" stop-color="#1a1a18" stop-opacity="0.3"/>
-        <stop offset="0.2" stop-color="#2e2c28" stop-opacity="0.2"/>
-        <stop offset="0.45" stop-color="#4a463f" stop-opacity="0.08"/>
-        <stop offset="1" stop-color="#f6f3ee" stop-opacity="0"/>
+        <stop offset="0" stop-color="#1b1733" stop-opacity="0.3"/>
+        <stop offset="0.2" stop-color="#292151" stop-opacity="0.2"/>
+        <stop offset="0.45" stop-color="#423a7c" stop-opacity="0.08"/>
+        <stop offset="1" stop-color="#f2f1f8" stop-opacity="0"/>
       </linearGradient>
     </defs>
     <rect x="0" y="200" width="1440" height="400" fill="url(#fadeBotDark)" filter="url(#inkSoftBot)"/>
@@ -558,9 +558,9 @@ body::before {
 -->
 <script>
 (function() {
-  console.log('%cWhat\u2019s an anagram of Banach-Tarski?', 'color:#2a241a;');
+  console.log('%cWhat\u2019s an anagram of Banach-Tarski?', 'color:#2b2358;');
   console.log('');
-  console.log('%c  answer("\u2026")', 'color:#8a847a;');
+  console.log('%c  answer("\u2026")', 'color:#78739a;');
 
   function normalize(value) {
     return String(value)
@@ -572,15 +572,15 @@ body::before {
 
   window.answer = function(value) {
     if (value === undefined) {
-      console.log('%c type your answer inside the parentheses, in quotes: answer("\u2026")', 'color:#8a847a;');
+      console.log('%c type your answer inside the parentheses, in quotes: answer("\u2026")', 'color:#78739a;');
       return;
     }
     if (normalize(value) === 'banach tarski banach tarski') {
-      console.log('%c one ball, taken apart and put back as two. the door is open.', 'color:#5a4a2a;');
+      console.log('%c one ball, taken apart and put back as two. the door is open.', 'color:#443a8c;');
       window.location.href = 'safe-harbor.html';
       return true;
     }
-    console.log('%c not it \u2014 the prompt is still open. try again.', 'color:#2a241a;');
+    console.log('%c not it \u2014 the prompt is still open. try again.', 'color:#2b2358;');
     return false;
   };
 })();
